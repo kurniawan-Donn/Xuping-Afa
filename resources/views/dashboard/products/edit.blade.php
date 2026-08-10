@@ -59,8 +59,13 @@
 
             <div class="space-y-6">
                 <!-- Media -->
-                <div x-data="editImageManager({{ $product->images->toJson() }}, '{{ asset('storage') }}', '{{ csrf_token() }}')" class="space-y-4">
+                <div x-data="editImageManager({{ $product->images->toJson() }}, '{{ asset('storage') }}')" class="space-y-4">
                     <h3 class="text-base font-semibold text-gray-800 border-b border-gray-100 pb-2">Media & Status</h3>
+                    
+                    <input type="hidden" name="primary_image_id" :value="primaryImageId">
+                    <template x-for="id in deletedImageIds">
+                        <input type="hidden" name="deleted_image_ids[]" :value="id">
+                    </template>
                     
                     <template x-if="images.length > 0">
                         <div>
@@ -166,80 +171,90 @@
 
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('editImageManager', (initialImages, storageUrl, csrf) => ({
-        images: initialImages,
-        storageUrl: storageUrl,
-        csrf: csrf,
-        lightboxOpen: false,
-        currentIndex: 0,
-        newFilesText: 'Belum ada file baru yang dipilih',
-        
-        handleNewFiles(e) {
-            if (e.target.files && e.target.files.length > 0) {
-                this.newFilesText = e.target.files.length + ' foto baru dipilih';
-            } else {
-                this.newFilesText = 'Belum ada file baru yang dipilih';
+    Alpine.data('editImageManager', (initialImages, storageUrl) => {
+        // Sort initially so primary is always first
+        initialImages.sort((a, b) => {
+            if (a.is_primary && !b.is_primary) return -1;
+            if (!a.is_primary && b.is_primary) return 1;
+            return a.id - b.id;
+        });
+
+        const currentPrimary = initialImages.find(i => i.is_primary);
+
+        return {
+            images: initialImages,
+            storageUrl: storageUrl,
+            primaryImageId: currentPrimary ? currentPrimary.id : null,
+            deletedImageIds: [],
+            lightboxOpen: false,
+            currentIndex: 0,
+            newFilesText: 'Belum ada file baru yang dipilih',
+            
+            handleNewFiles(e) {
+                if (e.target.files && e.target.files.length > 0) {
+                    this.newFilesText = e.target.files.length + ' foto baru dipilih';
+                } else {
+                    this.newFilesText = 'Belum ada file baru yang dipilih';
+                }
+            },
+            openLightbox(index) {
+                if(this.images.length === 0) return;
+                this.currentIndex = index;
+                this.lightboxOpen = true;
+            },
+            prevImage() {
+                if(this.images.length === 0) return;
+                this.currentIndex = this.currentIndex === 0 ? this.images.length - 1 : this.currentIndex - 1;
+            },
+            nextImage() {
+                if(this.images.length === 0) return;
+                this.currentIndex = this.currentIndex === this.images.length - 1 ? 0 : this.currentIndex + 1;
+            },
+            setPrimary() {
+                if(this.images.length === 0) return;
+                const img = this.images[this.currentIndex];
+                
+                // Client side only update
+                this.images = this.images.map((imgItem) => {
+                    imgItem.is_primary = (imgItem.id === img.id) ? 1 : 0;
+                    return imgItem;
+                });
+                
+                // Resort to keep primary at the left
+                this.images.sort((a, b) => {
+                    if (a.is_primary && !b.is_primary) return -1;
+                    if (!a.is_primary && b.is_primary) return 1;
+                    return a.id - b.id;
+                });
+                
+                this.primaryImageId = img.id;
+                this.currentIndex = this.images.findIndex(i => i.id === img.id);
+            },
+            deleteImage() {
+                if(this.images.length === 0) return;
+                if(!confirm('Apakah Anda yakin ingin menghapus foto ini? (Perubahan akan tersimpan saat Anda mengklik Simpan Perubahan)')) return;
+                
+                const img = this.images[this.currentIndex];
+                
+                // Client side only delete
+                this.deletedImageIds.push(img.id);
+                this.images.splice(this.currentIndex, 1);
+                
+                if(this.images.length === 0) {
+                    this.lightboxOpen = false;
+                    this.primaryImageId = null;
+                } else {
+                    if(img.is_primary && this.images.length > 0) {
+                        this.images[0].is_primary = 1;
+                        this.primaryImageId = this.images[0].id;
+                    }
+                    if(this.currentIndex >= this.images.length) {
+                        this.currentIndex = this.images.length - 1;
+                    }
+                }
             }
-        },
-        openLightbox(index) {
-            this.currentIndex = index;
-            this.lightboxOpen = true;
-        },
-        prevImage() {
-            if(this.images.length === 0) return;
-            this.currentIndex = this.currentIndex === 0 ? this.images.length - 1 : this.currentIndex - 1;
-        },
-        nextImage() {
-            if(this.images.length === 0) return;
-            this.currentIndex = this.currentIndex === this.images.length - 1 ? 0 : this.currentIndex + 1;
-        },
-        async setPrimary() {
-            if(this.images.length === 0) return;
-            const img = this.images[this.currentIndex];
-            try {
-                const res = await fetch(`/dashboard/product-images/${img.id}/set-primary`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': this.csrf,
-                        'Accept': 'application/json'
-                    }
-                });
-                if(res.ok) {
-                    this.images = this.images.map((imgItem, i) => {
-                        imgItem.is_primary = (i === this.currentIndex) ? 1 : 0;
-                        return imgItem;
-                    });
-                }
-            } catch(e) { console.error(e); }
-        },
-        async deleteImage() {
-            if(this.images.length === 0) return;
-            if(!confirm('Apakah Anda yakin ingin menghapus foto ini?')) return;
-            const img = this.images[this.currentIndex];
-            try {
-                const res = await fetch(`/dashboard/product-images/${img.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': this.csrf,
-                        'Accept': 'application/json'
-                    }
-                });
-                if(res.ok) {
-                    this.images.splice(this.currentIndex, 1);
-                    if(this.images.length === 0) {
-                        this.lightboxOpen = false;
-                    } else {
-                        if(img.is_primary && this.images.length > 0) {
-                            this.images[0].is_primary = 1;
-                        }
-                        if(this.currentIndex >= this.images.length) {
-                            this.currentIndex = this.images.length - 1;
-                        }
-                    }
-                }
-            } catch(e) { console.error(e); }
-        }
-    }));
+        };
+    });
 });
 </script>
 @endsection

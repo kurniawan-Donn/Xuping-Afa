@@ -161,71 +161,86 @@
 
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('showImageManager', (initialImages, storageUrl, csrf) => ({
-        images: initialImages,
-        storageUrl: storageUrl,
-        csrf: csrf,
-        lightboxOpen: false,
-        currentIndex: 0,
-        
-        openLightbox(index) {
-            if(this.images.length === 0) return;
-            if(index === 0 && !this.images[0].is_primary) {
-                const primaryIndex = this.images.findIndex(i => i.is_primary);
-                if(primaryIndex !== -1) index = primaryIndex;
-            }
-            this.currentIndex = index;
-            this.lightboxOpen = true;
-        },
-        prevImage() {
-            if(this.images.length === 0) return;
-            this.currentIndex = this.currentIndex === 0 ? this.images.length - 1 : this.currentIndex - 1;
-        },
-        nextImage() {
-            if(this.images.length === 0) return;
-            this.currentIndex = this.currentIndex === this.images.length - 1 ? 0 : this.currentIndex + 1;
-        },
-        async setPrimary() {
-            if(this.images.length === 0) return;
-            const img = this.images[this.currentIndex];
-            try {
-                const res = await fetch(`/dashboard/product-images/${img.id}/set-primary`, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': this.csrf, 'Accept': 'application/json' }
-                });
-                if(res.ok) {
-                    this.images = this.images.map((imgItem, i) => {
-                        imgItem.is_primary = (i === this.currentIndex) ? 1 : 0;
-                        return imgItem;
+    Alpine.data('showImageManager', (initialImages, storageUrl, csrf) => {
+        // Sort initially so primary is always first
+        initialImages.sort((a, b) => {
+            if (a.is_primary && !b.is_primary) return -1;
+            if (!a.is_primary && b.is_primary) return 1;
+            return a.id - b.id;
+        });
+
+        return {
+            images: initialImages,
+            storageUrl: storageUrl,
+            csrf: csrf,
+            lightboxOpen: false,
+            currentIndex: 0,
+            
+            openLightbox(index) {
+                if(this.images.length === 0) return;
+                this.currentIndex = index;
+                this.lightboxOpen = true;
+            },
+            prevImage() {
+                if(this.images.length === 0) return;
+                this.currentIndex = this.currentIndex === 0 ? this.images.length - 1 : this.currentIndex - 1;
+            },
+            nextImage() {
+                if(this.images.length === 0) return;
+                this.currentIndex = this.currentIndex === this.images.length - 1 ? 0 : this.currentIndex + 1;
+            },
+            async setPrimary() {
+                if(this.images.length === 0) return;
+                const img = this.images[this.currentIndex];
+                try {
+                    const res = await fetch(`/dashboard/product-images/${img.id}/set-primary`, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': this.csrf, 'Accept': 'application/json' }
                     });
-                }
-            } catch(e) { console.error(e); }
-        },
-        async deleteImage() {
-            if(this.images.length === 0) return;
-            if(!confirm('Apakah Anda yakin ingin menghapus foto ini?')) return;
-            const img = this.images[this.currentIndex];
-            try {
-                const res = await fetch(`/dashboard/product-images/${img.id}`, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': this.csrf, 'Accept': 'application/json' }
-                });
-                if(res.ok) {
-                    this.images.splice(this.currentIndex, 1);
-                    if(this.images.length === 0) {
-                        this.lightboxOpen = false;
-                    } else {
-                        if(img.is_primary && this.images.length > 0) {
-                            this.images[0].is_primary = 1;
-                        }
-                        if(this.currentIndex >= this.images.length) {
-                            this.currentIndex = this.images.length - 1;
+                    if(res.ok) {
+                        this.images = this.images.map((imgItem) => {
+                            imgItem.is_primary = (imgItem.id === img.id) ? 1 : 0;
+                            return imgItem;
+                        });
+                        
+                        // Resort to keep primary at the left
+                        this.images.sort((a, b) => {
+                            if (a.is_primary && !b.is_primary) return -1;
+                            if (!a.is_primary && b.is_primary) return 1;
+                            return a.id - b.id;
+                        });
+                        
+                        // Update currentIndex so the lightbox stays on the same image
+                        this.currentIndex = this.images.findIndex(i => i.id === img.id);
+                    }
+                } catch(e) { console.error(e); }
+            },
+            async deleteImage() {
+                if(this.images.length === 0) return;
+                if(!confirm('Apakah Anda yakin ingin menghapus foto ini?')) return;
+                const img = this.images[this.currentIndex];
+                try {
+                    const res = await fetch(`/dashboard/product-images/${img.id}`, {
+                        method: 'DELETE',
+                        headers: { 'X-CSRF-TOKEN': this.csrf, 'Accept': 'application/json' }
+                    });
+                    if(res.ok) {
+                        this.images.splice(this.currentIndex, 1);
+                        if(this.images.length === 0) {
+                            this.lightboxOpen = false;
+                        } else {
+                            if(img.is_primary && this.images.length > 0) {
+                                this.images[0].is_primary = 1;
+                            }
+                            if(this.currentIndex >= this.images.length) {
+                                this.currentIndex = this.images.length - 1;
+                            }
                         }
                     }
-                }
-            } catch(e) { console.error(e); }
-        }
-    }));
+                } catch(e) { console.error(e); }
+            }
+        };
+    });
 });
 </script>
 @endsection
