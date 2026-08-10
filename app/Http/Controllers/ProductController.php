@@ -12,10 +12,39 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['category', 'images'])->latest()->paginate(10);
-        return view('dashboard.products.index', compact('products'));
+        $perPage = $request->input('per_page', 10);
+        $search = $request->input('search');
+        $status = $request->input('status');
+        $categoryId = $request->input('category_id');
+
+        $query = Product::with(['category', 'images']);
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        
+        if ($status !== null && $status !== '') {
+            $query->where('is_active', $status);
+        }
+        
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        // Urutkan yang aktif dulu, baru terbaru
+        $query->orderBy('is_active', 'desc')->latest();
+
+        $products = $query->paginate($perPage)->withQueryString();
+        
+        $categories = Category::orderBy('name')->get();
+
+        if ($request->ajax()) {
+            return view('dashboard.products._table', compact('products'))->render();
+        }
+
+        return view('dashboard.products.index', compact('products', 'categories', 'perPage'));
     }
 
     public function create()
@@ -42,7 +71,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'description' => $request->description,
             'price' => $request->price,
-            'is_active' => $request->has('is_active'),
+            'is_active' => $request->boolean('is_active'),
             'user_id' => auth()->id(),
             'created_by' => auth()->id(),
         ]);
@@ -84,7 +113,10 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'is_active' => 'nullable',
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048'
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+            'deleted_image_ids' => 'nullable|array',
+            'deleted_image_ids.*' => 'exists:product_images,id',
+            'primary_image_id' => 'nullable|exists:product_images,id',
         ]);
 
         $product->update([
@@ -92,17 +124,41 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'description' => $request->description,
             'price' => $request->price,
-            'is_active' => $request->has('is_active'),
+            'is_active' => $request->boolean('is_active'),
         ]);
 
+        // Process deletions
+        if ($request->has('deleted_image_ids')) {
+            $imagesToDelete = \App\Models\ProductImage::whereIn('id', $request->deleted_image_ids)
+                ->where('product_id', $product->id)
+                ->get();
+                
+            foreach ($imagesToDelete as $img) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($img->image_path);
+                $img->delete();
+            }
+        }
+
+        // Process primary image
+        if ($request->filled('primary_image_id')) {
+            $primaryImg = \App\Models\ProductImage::where('id', $request->primary_image_id)
+                ->where('product_id', $product->id)
+                ->first();
+                
+            if ($primaryImg) {
+                \App\Models\ProductImage::where('product_id', $product->id)->update(['is_primary' => false]);
+                $primaryImg->update(['is_primary' => true]);
+            }
+        }
+
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
+            foreach ($request->file('images') as $index => $image) {
                 $path = $image->store('products', 'public');
                 $hasPrimary = $product->images()->where('is_primary', true)->exists();
-                ProductImage::create([
+                \App\Models\ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => $path,
-                    'is_primary' => !$hasPrimary,
+                    'is_primary' => !$hasPrimary && $index === 0,
                 ]);
             }
         }

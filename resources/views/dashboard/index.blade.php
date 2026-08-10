@@ -64,7 +64,7 @@
             <h3 class="text-base font-semibold text-gray-800">Produk Terbaru</h3>
             <p class="text-xs text-gray-500 mt-1">Daftar produk yang baru saja ditambahkan</p>
         </div>
-        <a href="#" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-lg hover:bg-indigo-100 transition-colors">
+        <a href="{{ route('products.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-lg hover:bg-indigo-100 transition-colors">
             Lihat Semua Produk
         </a>
     </div>
@@ -105,7 +105,7 @@
                         @if($product->is_active)
                         <span class="inline-flex px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-medium border border-emerald-200">Aktif</span>
                         @else
-                        <span class="inline-flex px-2.5 py-1 bg-gray-50 text-gray-600 rounded-full text-xs font-medium border border-gray-200">Draft</span>
+                        <span class="inline-flex px-2.5 py-1 bg-gray-50 text-gray-600 rounded-full text-xs font-medium border border-gray-200">Nonaktif</span>
                         @endif
                     </td>
                 </tr>
