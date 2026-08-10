@@ -44,6 +44,16 @@
                 </td>
                 <td class="px-6 py-4 text-right">
                     <div class="flex items-center justify-end gap-2">
+                        @if($user->id !== auth()->id() && !(auth()->user()->hasRole('owner') && $user->hasRole(['superadmin', 'owner'])))
+                        <button type="button" @click="toggleActive('{{ route('users.toggle-active', $user) }}')" class="p-1.5 {{ $user->is_active ? 'text-orange-600 bg-orange-50 hover:bg-orange-100' : 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100' }} rounded-md transition-colors" title="{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                            @if($user->is_active)
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            @else
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            @endif
+                        </button>
+                        @endif
+
                         @if(!(auth()->user()->hasRole('owner') && $user->hasRole(['superadmin', 'owner']) && $user->id !== auth()->id()))
                         <a href="{{ route('users.edit', $user) }}" class="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors" title="Edit">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
