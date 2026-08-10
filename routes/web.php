@@ -9,6 +9,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebsiteController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', [WebsiteController::class, 'index'])->name('website.index');
+Route::get('/about', [WebsiteController::class, 'about'])->name('website.about');
 Route::get('/products', [WebsiteController::class, 'productIndex'])->name('website.products.index');
 
 Route::middleware('guest')->prefix('login')->group(function () {
@@ -19,6 +21,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    
+    Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
+    
     Route::resource('categories', CategoryController::class)->except(['create', 'show', 'edit']);
     Route::resource('products', ProductController::class);
     
@@ -26,6 +32,7 @@ Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::delete('/product-images/{image}', [ProductController::class, 'deleteImage'])->name('product-images.destroy');
 
     Route::middleware(['role:owner|superadmin'])->group(function () {
+        Route::post('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
         Route::resource('users', UserController::class)->except(['show']);
     });
 
