@@ -8,10 +8,24 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::withCount('products')->latest()->get();
-        return view('dashboard.categories.index', compact('categories'));
+        $perPage = $request->input('per_page', 10);
+        $search = $request->input('search');
+
+        $query = Category::withCount('products')->latest();
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $categories = $query->paginate($perPage)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('dashboard.categories._table', compact('categories'))->render();
+        }
+
+        return view('dashboard.categories.index', compact('categories', 'perPage'));
     }
 
     public function store(Request $request)
