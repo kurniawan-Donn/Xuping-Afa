@@ -12,7 +12,9 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::with('roles')->latest();
+        $query = User::with('roles')
+            ->orderByRaw('id = ? DESC', [auth()->id()])
+            ->latest();
 
         if (auth()->user()->hasRole('owner')) {
             $query->whereDoesntHave('roles', function ($q) {
@@ -52,6 +54,25 @@ class UserController extends Controller
         return view('dashboard.users.index', compact('users'));
     }
 
+    public function toggleActive(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak dapat mengubah status Anda sendiri.']);
+        }
+        
+        if (auth()->user()->hasRole('owner') && $user->hasRole(['superadmin', 'owner'])) {
+            return response()->json(['success' => false, 'message' => 'Tidak memiliki izin.']);
+        }
+
+        $user->update(['is_active' => !$user->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'is_active' => $user->is_active,
+            'message' => 'Status pengguna berhasil diperbarui.'
+        ]);
+    }
+
     public function create()
     {
         $roles = Role::where('name', '!=', 'superadmin')->get();
@@ -66,14 +87,21 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|exists:roles,name',
             'is_active' => 'nullable',
+            'avatar' => 'nullable|image|max:2048',
         ]);
 
-        $user = User::create([
+        $data = [
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_active' => $request->boolean('is_active'),
-        ]);
+        ];
+
+        if ($request->hasFile('avatar')) {
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user = User::create($data);
 
         $user->assignRole($request->role);
 
@@ -106,6 +134,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'role' => 'required|exists:roles,name',
             'is_active' => 'nullable',
+            'avatar' => 'nullable|image|max:2048',
         ]);
 
         $data = [
@@ -113,6 +142,13 @@ class UserController extends Controller
             'email' => $request->email,
             'is_active' => $request->boolean('is_active'),
         ];
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+            }
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
 
         $user->update($data);
 

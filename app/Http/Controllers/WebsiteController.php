@@ -6,8 +6,23 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
+use App\Models\Setting;
+
 class WebsiteController extends Controller
 {
+    public function index()
+    {
+        $settings = Setting::pluck('value', 'key')->toArray();
+        $products = Product::active()->with('category')->latest()->take(8)->get();
+        return view('website.index', compact('settings', 'products'));
+    }
+
+    public function about()
+    {
+        $settings = Setting::pluck('value', 'key')->toArray();
+        return view('website.about', compact('settings'));
+    }
+
     public function productIndex()
     {
         $categories = Category::orderBy('name')->get();
