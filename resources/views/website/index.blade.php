@@ -6,7 +6,7 @@
 <section class="relative bg-gray-50 pt-16 pb-24 lg:pt-32 lg:pb-40 overflow-hidden">
     @if(isset($settings['hero_image']) && $settings['hero_image'])
     <div class="absolute inset-0 z-0">
-        <img src="{{ Storage::url($settings['hero_image']) }}" alt="Background" class="w-full h-full object-cover opacity-20">
+        <img src="{{ Storage::url($settings['hero_image']) }}" alt="Background" class="w-full h-full object-cover opacity-99">
     </div>
     @endif
     <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-50 z-10"></div>
@@ -75,7 +75,7 @@
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             @forelse($products as $product)
-            <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-indigo-100/50 transition-all duration-300">
+            <a href="{{ route('website.products.show', $product->slug ?? $product->id) }}" class="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-indigo-100/50 transition-all duration-300">
                 <div class="aspect-[4/5] bg-gray-50 overflow-hidden relative">
                     <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -103,23 +103,23 @@
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="py-24 bg-indigo-600 relative overflow-hidden">
-    <div class="absolute inset-0 opacity-10">
-        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-                <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M0 40V0H40" fill="none" stroke="white" stroke-width="2"/>
-                </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid-pattern)"/>
-        </svg>
-    </div>
-    <div class="max-w-4xl mx-auto px-4 relative z-10 text-center">
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Siap Untuk Tampil Lebih Memukau?</h2>
-        <p class="text-indigo-100 text-lg mb-10 max-w-2xl mx-auto">Tingkatkan rasa percaya diri Anda dengan sentuhan aksesoris yang tepat. Temukan gaya Anda hari ini.</p>
-        <a href="{{ route('website.products.index') }}" class="inline-flex justify-center items-center px-8 py-4 border border-transparent text-lg font-bold rounded-full text-indigo-600 bg-white hover:bg-indigo-50 hover:scale-105 transition-all shadow-xl">
-            Mulai Belanja Sekarang
+<!-- CTA Section - Soft Neutral Elegant -->
+<section class="py-24 bg-slate-100 relative overflow-hidden border-y border-slate-200/60">
+    <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
+        
+        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+            Siap Untuk Tampil Lebih Memukau?
+        </h2>
+        
+        <p class="text-slate-600 text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+            Tingkatkan rasa percaya diri Anda dengan sentuhan aksesoris yang tepat. Temukan gaya Anda hari ini.
+        </p>
+
+        <a href="{{ route('website.products.index') }}" class="group inline-flex justify-center items-center px-8 py-4 text-base font-bold rounded-full text-white bg-slate-900 hover:bg-indigo-600 hover:scale-105 transition-all duration-300 shadow-xl shadow-slate-900/20">
+            <span>Mulai Belanja Sekarang</span>
+            <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
         </a>
     </div>
 </section>

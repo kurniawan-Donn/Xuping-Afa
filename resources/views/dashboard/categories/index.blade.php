@@ -214,11 +214,21 @@ document.addEventListener('alpine:init', () => {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(res => res.text())
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.text();
+            })
             .then(html => {
                 this.$refs.tableContainer.innerHTML = html;
-                this.loading = false;
                 this.initPagination();
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                alert('Gagal memuat data. Silakan muat ulang halaman.');
+            })
+            .finally(() => {
+                // Apapun yang terjadi, loading akan berhenti
+                this.loading = false;
             });
         },
 

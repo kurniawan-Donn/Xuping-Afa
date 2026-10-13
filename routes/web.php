@@ -12,14 +12,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [WebsiteController::class, 'index'])->name('website.index');
 Route::get('/about', [WebsiteController::class, 'about'])->name('website.about');
 Route::get('/products', [WebsiteController::class, 'productIndex'])->name('website.products.index');
-
+Route::get('/products/{product:slug}', [WebsiteController::class, 'productShow'])->name('website.products.show');
 Route::middleware('guest')->prefix('login')->group(function () {
     Route::get('/', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/', [AuthController::class, 'processLogin'])->name('login.store');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::middleware('auth')->prefix('dashboard')->group(function () {
+Route::middleware(['auth', 'prevent-back-history'])->prefix('dashboard')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     
     Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
