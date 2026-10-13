@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title')</title>
     @vite(['resources/css/app.css'])
+    
+    <!-- STACK META AGAR HALAMAN LAIN BISA MENGIRIM DATA GAMBAR/JUDUL -->
+    @stack('meta')
+
     @stack('styles')
 </head>
 <body>

@@ -61,7 +61,7 @@
 
             <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
                 @forelse ($products as $product)
-                <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-indigo-100/50 transition-all duration-300">
+                <a href="{{ route('website.products.show', $product->slug ?? $product->id) }}" class="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-indigo-100/50 transition-all duration-300">
                     <div class="aspect-[4/5] bg-gray-50 overflow-hidden relative">
                         <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

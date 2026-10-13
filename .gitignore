@@ -21,7 +21,11 @@
 /storage/*.key
 /storage/pail
 /vendor
+vendor_ex/
 _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+*.zip
+vendor_ex/
+project/

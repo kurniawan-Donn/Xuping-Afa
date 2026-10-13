@@ -74,33 +74,43 @@ document.addEventListener('alpine:init', () => {
         },
 
         fetchData(url = null) {
-            this.loading = true;
-            let targetUrl = url || '{{ route('products.index') }}';
-            let params = new URLSearchParams({
-                search: this.search,
-                per_page: this.per_page,
-                category_id: this.category_id,
-                status: this.status
-            });
+    this.loading = true;
+    let targetUrl = url || '{{ route('products.index') }}';
+    let params = new URLSearchParams({
+        search: this.search,
+        per_page: this.per_page,
+        category_id: this.category_id,
+        status: this.status
+    });
 
-            if (!url) {
-                targetUrl += '?' + params.toString();
-            }
+    if (!url) {
+        targetUrl += '?' + params.toString();
+    }
 
-            window.history.pushState({}, '', targetUrl);
+    window.history.pushState({}, '', targetUrl);
 
-            fetch(targetUrl, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(res => res.text())
-            .then(html => {
-                this.$refs.tableContainer.innerHTML = html;
-                this.loading = false;
-                this.initPagination();
-            });
-        },
+    fetch(targetUrl, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.text();
+    })
+    .then(html => {
+        this.$refs.tableContainer.innerHTML = html;
+        this.initPagination();
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+        alert('Gagal memuat data. Silakan muat ulang halaman.');
+    })
+    .finally(() => {
+        // Apapun yang terjadi, loading akan berhenti
+        this.loading = false;
+    });
+}
 
         initPagination() {
             const links = this.$refs.tableContainer.querySelectorAll('nav a');

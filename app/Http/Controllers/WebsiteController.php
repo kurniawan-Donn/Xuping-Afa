@@ -35,4 +35,13 @@ class WebsiteController extends Controller
             })->latest()->paginate(12)->withQueryString();
         return view('website.products.index', compact('products', 'categories'));
     }
+    public function productShow(Product $product)
+    {
+        if (!$product->is_active) {
+            abort(404);
+        }
+
+        $product->load('images', 'category');
+        return view('website.products.show', compact('product'));
+    }
 }
