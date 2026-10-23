@@ -38,7 +38,9 @@ class ProfileController extends Controller
             'current_password.required_with' => 'Kata sandi saat ini harus diisi jika Anda ingin mengubah kata sandi.',
         ]);
 
-        if ($request->filled('current_password')) {
+        // Password hanya diganti bila kata sandi baru diisi. Kolom "kata sandi saat ini"
+        // sering terisi otomatis oleh browser, jadi tidak boleh dijadikan pemicu.
+        if ($request->filled('password')) {
             if (!Hash::check($request->current_password, $user->password)) {
                 return back()->withErrors(['current_password' => 'Kata sandi saat ini tidak sesuai.'])->withInput();
             }
