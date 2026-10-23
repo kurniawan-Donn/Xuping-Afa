@@ -86,8 +86,8 @@
             </div>
             <div>
                 <label for="maps_embed_url" class="label">Link embed Google Maps <span class="font-normal text-stone-400">(opsional)</span></label>
-                <input id="maps_embed_url" name="maps_embed_url" type="url" value="{{ $s('maps_embed_url') }}" class="input" placeholder="https://www.google.com/maps/embed?pb=…">
-                <p class="hint">Google Maps → Bagikan → Sematkan peta → salin isi <code>src="…"</code> saja.</p>
+                <textarea id="maps_embed_url" name="maps_embed_url" rows="2" class="input text-xs" placeholder='<iframe src="https://www.google.com/maps/embed?pb=…"></iframe>'>{{ $s('maps_embed_url') }}</textarea>
+                <p class="hint">Di Google Maps: cari lokasi toko → <b>Bagikan</b> → tab <b>Sematkan peta</b> → <b>Salin HTML</b>, lalu tempel di sini. Link berbagi (<code>maps.app.goo.gl/…</code>) tidak bisa dipakai.</p>
                 @error('maps_embed_url')<p class="error">{{ $message }}</p>@enderror
             </div>
         </section>
