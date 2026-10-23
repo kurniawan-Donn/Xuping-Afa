@@ -1,252 +1,72 @@
 @extends('layouts.dashboard')
-@section('title', 'Kategori - Admin Afa Xuping')
-@section('header_title', 'Kategori Produk')
+@section('title', 'Kategori — Admin Afa Xuping')
+@section('header_title', 'Kategori')
 
 @section('content')
-<div x-data="categoryManager()">
-    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <h2 class="text-xl font-bold text-gray-800">Daftar Kategori</h2>
-            <p class="text-sm text-gray-500">Kelola kategori produk untuk katalog Anda</p>
-        </div>
-        <button @click="openCreateModal" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Tambah Kategori
-        </button>
-    </div>
+<div x-data="{
+        modal: false,
+        form: { id: null, name: '', description: '' },
+        storeUrl: @js(route('categories.store')),
+        baseUrl: @js(url('dashboard/categories')),
+        openCreate() { this.form = { id: null, name: '', description: '' }; this.modal = true; this.$nextTick(() => this.$refs.name.focus()); },
+        openEdit(c) { this.form = { ...c }; this.modal = true; this.$nextTick(() => this.$refs.name.focus()); },
+    }" @edit-category.window="openEdit($event.detail)" @keydown.escape.window="modal = false">
 
-    <!-- Filters -->
-    <div class="mb-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-            <label for="per_page" class="text-sm text-gray-600 whitespace-nowrap">Tampilkan</label>
-            <select x-model="per_page" class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
+    <x-dash.header title="Kategori" subtitle="Kelompokkan produk agar mudah dicari pembeli.">
+        <button type="button" @click="openCreate()" class="btn btn-dark"><x-icon name="plus" class="h-4 w-4" /> Tambah Kategori</button>
+    </x-dash.header>
+
+    <div x-data="liveFilter({ search: @js(request('search', '')), per_page: @js((string) $perPage) })">
+        <div class="card mb-4 flex gap-3 p-3">
+            <label class="relative flex-1">
+                <span class="sr-only">Cari kategori</span>
+                <x-icon name="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                <input type="search" x-model.debounce.400ms="search" class="input pl-9" placeholder="Cari kategori…">
+            </label>
+            <select x-model="per_page" class="input w-28" aria-label="Per halaman">
+                @foreach ([10, 25, 50] as $n)
+                    <option value="{{ $n }}">{{ $n }} / hal</option>
+                @endforeach
             </select>
-            <span class="text-sm text-gray-600">data</span>
         </div>
-        
-        <div class="w-full sm:w-72 relative">
-            <input type="text" x-model.debounce.500ms="search" placeholder="Cari kategori..." class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
-            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        </div>
-    </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative" x-ref="tableContainer">
-        @include('dashboard.categories._table')
-    </div>
-
-
-    <div x-show="showModal" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
-        <div x-show="showModal" x-transition.opacity class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
-        
-        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div x-show="showModal" 
-                     @click.outside="showModal = false"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave="transition ease-in duration-200"
-                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     class="bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-lg overflow-hidden text-left relative">
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                <h3 class="text-lg font-semibold text-gray-800" x-text="isEdit ? 'Edit Kategori' : 'Tambah Kategori'"></h3>
-                <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
+        <div class="card relative overflow-hidden">
+            <div x-cloak x-show="loading" class="absolute inset-0 z-10 grid place-items-center bg-white/60">
+                <span class="h-7 w-7 animate-spin rounded-full border-2 border-gold-200 border-t-gold-600"></span>
             </div>
-            <form :action="formAction" method="POST" class="p-6">
-                @csrf
-                <input type="hidden" name="_method" :value="formMethod">
-
-                <div class="space-y-4">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1.5">Nama Kategori <span class="text-red-500">*</span></label>
-                        <input type="text" id="name" name="name" x-model="category.name" required class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors" placeholder="Contoh: Cincin">
-                    </div>
-
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1.5">Deskripsi</label>
-                        <textarea id="description" name="description" x-model="category.description" rows="3" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors" placeholder="Deskripsi singkat tentang kategori ini..."></textarea>
-                    </div>
-                </div>
-
-                <div class="mt-8 flex items-center justify-end gap-3">
-                    <button type="button" @click="showModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors">
-                        Batal
-                    </button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div x-ref="results">
+                @include('dashboard.categories._table')
             </div>
         </div>
     </div>
 
-    <!-- Detail Modal -->
-    <div x-show="showDetailModal" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true" style="display: none;">
-        <div x-show="showDetailModal" x-transition.opacity class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
-        
-        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-                <div x-show="showDetailModal" 
-                     @click.outside="showDetailModal = false"
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave="transition ease-in duration-200"
-                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     class="bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-lg overflow-hidden text-left relative">
-                     
-                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                        <h3 class="text-lg font-semibold text-gray-800">Detail Kategori</h3>
-                        <button @click="showDetailModal = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-                    
-                    <div class="p-6">
-                        <div class="space-y-4">
-                            <div>
-                                <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Nama Kategori</h4>
-                                <p class="text-gray-900 font-medium" x-text="category.name"></p>
-                            </div>
-                            
-                            <div>
-                                <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Slug URL</h4>
-                                <p class="text-gray-700 bg-gray-50 px-2.5 py-1 rounded-md inline-block text-sm border border-gray-100 font-mono" x-text="category.slug"></p>
-                            </div>
-                            
-                            <div>
-                                <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Total Produk</h4>
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-sm font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
-                                    <span x-text="category.products_count"></span>&nbsp;Produk
-                                </span>
-                            </div>
+    {{-- Modal tambah / edit --}}
+    <div x-cloak x-show="modal" class="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true">
+        <div x-show="modal" x-transition.opacity class="absolute inset-0 bg-ink/50 backdrop-blur-sm" @click="modal = false"></div>
+        <form x-show="modal" x-transition method="POST" :action="form.id ? baseUrl + '/' + form.id : storeUrl"
+            class="relative w-full max-w-lg rounded-t-3xl bg-white p-6 shadow-lift sm:rounded-3xl">
+            @csrf
+            <template x-if="form.id"><input type="hidden" name="_method" value="PUT"></template>
 
-                            <div>
-                                <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Deskripsi</h4>
-                                <p class="text-gray-700 text-sm bg-gray-50 p-3 rounded-xl border border-gray-100" x-text="category.description || 'Tidak ada deskripsi.'"></p>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-8 flex justify-end">
-                            <button @click="showDetailModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors">
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
+            <div class="flex items-center justify-between">
+                <h2 class="font-display text-2xl font-bold" x-text="form.id ? 'Edit kategori' : 'Kategori baru'"></h2>
+                <button type="button" @click="modal = false" class="grid h-9 w-9 place-items-center rounded-lg text-stone-400 hover:bg-stone-100" aria-label="Tutup"><x-icon name="x" /></button>
+            </div>
+            <div class="mt-5 space-y-4">
+                <div>
+                    <label for="cat-name" class="label">Nama kategori <span class="text-red-500">*</span></label>
+                    <input id="cat-name" x-ref="name" type="text" name="name" x-model="form.name" required maxlength="255" class="input" placeholder="Contoh: Cincin">
+                </div>
+                <div>
+                    <label for="cat-desc" class="label">Deskripsi <span class="font-normal text-stone-400">(opsional)</span></label>
+                    <textarea id="cat-desc" name="description" x-model="form.description" rows="3" class="input" placeholder="Muncul sebagai deskripsi halaman kategori di Google."></textarea>
                 </div>
             </div>
-        </div>
+            <div class="mt-6 flex gap-2">
+                <button type="button" @click="modal = false" class="btn btn-outline flex-1">Batal</button>
+                <button type="submit" class="btn btn-dark flex-[2]">Simpan</button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('categoryManager', () => ({
-        showModal: false, 
-        showDetailModal: false,
-        isEdit: false, 
-        formAction: '{{ route('categories.store') }}',
-        formMethod: 'POST',
-        category: { id: '', name: '', description: '', products_count: 0, slug: '' },
-        
-        search: '{{ request('search') }}',
-        per_page: '{{ request('per_page', 10) }}',
-        loading: false,
-
-        init() {
-            this.$watch('search', () => this.fetchData());
-            this.$watch('per_page', () => this.fetchData());
-            this.initPagination();
-        },
-
-        openCreateModal() {
-            this.isEdit = false;
-            this.formAction = '{{ route('categories.store') }}';
-            this.formMethod = 'POST';
-            this.category = { id: '', name: '', description: '', products_count: 0, slug: '' };
-            this.showModal = true;
-        },
-        openEditModal(item) {
-            this.isEdit = true;
-            this.formAction = `/dashboard/categories/${item.id}`;
-            this.formMethod = 'PUT';
-            this.category = { ...item };
-            this.showModal = true;
-        },
-        openDetailModal(item) {
-            this.category = { ...item };
-            this.showDetailModal = true;
-        },
-
-        fetchData(url = null) {
-            this.loading = true;
-            let targetUrl = url || window.location.pathname;
-            let params = new URLSearchParams({
-                search: this.search,
-                per_page: this.per_page,
-            });
-
-            if (!url) {
-                targetUrl += '?' + params.toString();
-            }
-
-            try {
-    			const urlObj = new URL(targetUrl, window.location.origin);
-    			window.history.pushState({}, '', urlObj.pathname + urlObj.search);
-			} catch (e) {
-    			console.warn('pushState failed:', e);
-			}
-
-            fetch(targetUrl, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(res => {
-                if (!res.ok) throw new Error('Network response was not ok');
-                return res.text();
-            })
-            .then(html => {
-                this.$refs.tableContainer.innerHTML = html;
-                this.initPagination();
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                alert('Gagal memuat data. Silakan muat ulang halaman.');
-            })
-            .finally(() => {
-                // Apapun yang terjadi, loading akan berhenti
-                this.loading = false;
-            });
-        },
-
-        initPagination() {
-            const links = this.$refs.tableContainer.querySelectorAll('nav a');
-            links.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.fetchData(link.href);
-                });
-            });
-        }
-    }));
-});
-</script>
-@endpush

@@ -1,9 +1,111 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/forms' ;
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../js/**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --font-display: 'Cormorant Garamond', ui-serif, Georgia, serif;
+
+    --color-ivory: #faf7f2;
+    --color-cream: #f3ece0;
+    --color-ink: #1c1917;
+
+    --color-gold-50: #fbf8f1;
+    --color-gold-100: #f5ecd9;
+    --color-gold-200: #ead7b0;
+    --color-gold-300: #dcbd82;
+    --color-gold-400: #cca35c;
+    --color-gold-500: #b88a3e;
+    --color-gold-600: #9c7032;
+    --color-gold-700: #7d572b;
+    --color-gold-800: #664729;
+    --color-gold-900: #553c25;
+
+    --color-wa: #25d366;
+    --color-wa-dark: #128c4b;
+
+    --shadow-soft: 0 1px 2px rgb(28 25 23 / 0.04), 0 8px 24px -12px rgb(28 25 23 / 0.12);
+    --shadow-lift: 0 2px 4px rgb(28 25 23 / 0.04), 0 18px 40px -16px rgb(28 25 23 / 0.22);
+
+    --animate-fade-up: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    @keyframes fade-up {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+
+@layer base {
+    html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+    body { @apply bg-ivory text-ink antialiased; }
+    [x-cloak] { display: none !important; }
+    ::selection { @apply bg-gold-200 text-ink; }
+}
+
+@layer components {
+    .container-page { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+
+    .heading-display { @apply font-display font-semibold tracking-tight text-ink; }
+    .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.22em] text-gold-600; }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold
+            transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500
+            disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98];
+    }
+    .btn-sm { @apply px-3.5 py-1.5 text-xs; }
+    .btn-lg { @apply px-7 py-3.5 text-base; }
+    .btn-dark { @apply bg-ink text-white hover:bg-stone-800; }
+    .btn-gold { @apply bg-gold-500 text-white hover:bg-gold-600; }
+    .btn-outline { @apply border border-stone-300 bg-white text-ink hover:border-ink; }
+    .btn-ghost { @apply text-stone-600 hover:bg-stone-100 hover:text-ink; }
+    .btn-wa { @apply bg-wa text-white hover:bg-wa-dark; }
+    .btn-danger { @apply bg-red-600 text-white hover:bg-red-700; }
+
+    .input {
+        @apply block w-full rounded-xl border-stone-200 bg-white px-3.5 py-2.5 text-sm text-ink shadow-none
+            placeholder:text-stone-400 focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20;
+    }
+    .label { @apply mb-1.5 block text-sm font-medium text-stone-700; }
+    .hint { @apply mt-1 text-xs text-stone-500; }
+    .error { @apply mt-1 text-xs font-medium text-red-600; }
+
+    .card { @apply rounded-2xl border border-stone-200/70 bg-white shadow-soft; }
+
+    .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold; }
+    .badge-gold { @apply bg-gold-100 text-gold-800; }
+    .badge-dark { @apply bg-ink text-white; }
+    .badge-red { @apply bg-red-50 text-red-700; }
+    .badge-green { @apply bg-emerald-50 text-emerald-700; }
+    .badge-gray { @apply bg-stone-100 text-stone-600; }
+    .badge-amber { @apply bg-amber-50 text-amber-700; }
+
+    .chip {
+        @apply inline-flex shrink-0 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm
+            font-medium text-stone-600 transition hover:border-stone-400 hover:text-ink;
+    }
+    .chip-active { @apply border-ink bg-ink text-white hover:border-ink hover:text-white; }
+
+    .option {
+        @apply inline-flex min-w-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-stone-200
+            bg-white px-3.5 py-2 text-sm font-medium text-stone-700 transition hover:border-stone-400;
+    }
+    .option-active { @apply border-ink bg-ink text-white hover:border-ink; }
+
+    .table-base { @apply w-full text-left text-sm; }
+    .table-base thead th { @apply bg-stone-50 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-stone-500; }
+    .table-base tbody td { @apply border-t border-stone-100 px-4 py-3 align-middle; }
+    .table-base tbody tr { @apply transition hover:bg-gold-50/40; }
+
+    .nav-link { @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-stone-400 transition hover:bg-white/5 hover:text-white; }
+    .nav-link-active { @apply bg-white/10 text-white; }
+    .nav-link-active svg { @apply text-gold-300; }
+
+    .no-scrollbar { scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    .prose-afa { @apply space-y-4 leading-relaxed text-stone-600; }
 }

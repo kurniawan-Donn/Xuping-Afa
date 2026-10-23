@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Disallow: /dashboard
+Disallow: /login
+
+Sitemap: https://xuping-afa.my.id/sitemap.xml

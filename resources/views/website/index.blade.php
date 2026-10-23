@@ -1,126 +1,251 @@
 @extends('layouts.website')
-@section('title', ($settings['hero_title'] ?? 'Afa Xuping - Aksesoris Premium') . ' - Beranda')
+
+@php
+    $siteName = $settings['site_name'] ?? 'Afa Xuping Accessories';
+    $heroTitle = $settings['hero_title'] ?? 'Perhiasan Premium, Harga Bersahabat.';
+    $heroSubtitle = $settings['hero_subtitle'] ?? 'Koleksi perhiasan Xuping pilihan untuk menemani setiap momen. Pilih model favorit, pesan langsung lewat WhatsApp.';
+    $heroImage = ! empty($settings['hero_image']) ? asset('storage/' . $settings['hero_image']) : null;
+    $wa = \App\Models\Setting::whatsappNumber();
+@endphp
+
+@section('title', $siteName . ' — Perhiasan Xuping Pilihan')
 
 @section('content')
-<!-- Hero Section -->
-<section class="relative bg-gray-50 pt-16 pb-24 lg:pt-32 lg:pb-40 overflow-hidden">
-    @if(isset($settings['hero_image']) && $settings['hero_image'])
-    <div class="absolute inset-0 z-0">
-        <img src="{{ Storage::url($settings['hero_image']) }}" alt="Background" class="w-full h-full object-cover opacity-99">
-    </div>
-    @endif
-    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-gray-50 z-10"></div>
-    
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
-        <div class="text-center max-w-3xl mx-auto">
-            <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight mb-6">
-                {{ $settings['hero_title'] ?? 'Keanggunan dalam Setiap Detail' }}
-            </h1>
-            <p class="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed">
-                {{ $settings['hero_subtitle'] ?? 'Temukan koleksi perhiasan Xuping eksklusif yang dirancang khusus untuk memancarkan pesona dan kecantikan alami Anda setiap saat.' }}
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('website.products.index') }}" class="inline-flex justify-center items-center px-8 py-3.5 border border-transparent text-base font-semibold rounded-full text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/30 transition-all hover:-translate-y-1">
-                    Jelajahi Koleksi
-                </a>
-                <a href="{{ route('website.about') }}" class="inline-flex justify-center items-center px-8 py-3.5 border border-gray-300 text-base font-semibold rounded-full text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-all hover:-translate-y-1">
-                    Pelajari Lebih Lanjut
-                </a>
+
+{{-- ===================== HERO ===================== --}}
+@if ($banners->isNotEmpty())
+    <section x-data="{ i: 0, n: {{ $banners->count() }}, t: null, play() { clearInterval(this.t); if (this.n > 1) this.t = setInterval(() => this.i = (this.i + 1) % this.n, 6000) } }"
+        x-init="play()" class="container-page pt-4 lg:pt-6">
+        <div class="relative aspect-[4/5] overflow-hidden rounded-3xl bg-ink sm:aspect-[16/9] lg:aspect-[21/9]">
+            @foreach ($banners as $idx => $banner)
+                <div x-show="i === {{ $idx }}" @if ($idx) x-cloak @endif
+                    x-transition:enter="transition duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                    class="absolute inset-0">
+                    <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 h-full w-full object-cover" @if ($idx) loading="lazy" @else fetchpriority="high" @endif>
+                    <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent sm:bg-gradient-to-r sm:from-ink/75 sm:via-ink/30"></div>
+                    <div class="absolute inset-x-0 bottom-0 p-6 sm:inset-y-0 sm:flex sm:max-w-xl sm:flex-col sm:justify-center sm:p-12 lg:p-16">
+                        <h2 class="font-display text-4xl font-semibold leading-[1.05] text-white sm:text-5xl lg:text-6xl">{{ $banner->title }}</h2>
+                        @if ($banner->subtitle)
+                            <p class="mt-3 max-w-md text-sm text-stone-200 sm:text-base">{{ $banner->subtitle }}</p>
+                        @endif
+                        <a href="{{ $banner->link_url ?: route('website.products.index') }}" class="btn btn-gold mt-6 w-fit">
+                            Lihat Koleksi <x-icon name="arrow-right" class="h-4 w-4" />
+                        </a>
+                    </div>
+                </div>
+            @endforeach
+
+            @if ($banners->count() > 1)
+                <div class="absolute bottom-4 right-6 flex gap-2">
+                    @foreach ($banners as $idx => $banner)
+                        <button type="button" @click="i = {{ $idx }}; play()" :class="i === {{ $idx }} ? 'w-8 bg-white' : 'w-2 bg-white/50'"
+                            class="h-2 rounded-full transition-all" aria-label="Banner {{ $idx + 1 }}"></button>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </section>
+@else
+    <section class="relative overflow-hidden">
+        <div class="container-page grid items-center gap-10 py-10 lg:min-h-[640px] lg:grid-cols-2 lg:py-16">
+            <div class="animate-fade-up">
+                <p class="eyebrow">{{ $siteName }}</p>
+                <h1 class="heading-display mt-4 text-5xl leading-[1.02] sm:text-6xl lg:text-7xl">{{ $heroTitle }}</h1>
+                <p class="mt-6 max-w-lg text-base leading-relaxed text-stone-600 lg:text-lg">{{ $heroSubtitle }}</p>
+                <div class="mt-8 flex flex-wrap gap-3">
+                    <a href="{{ route('website.products.index') }}" class="btn btn-dark btn-lg">
+                        Jelajahi Katalog <x-icon name="arrow-right" class="h-4 w-4" />
+                    </a>
+                    @if ($wa)
+                        <a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener" class="btn btn-outline btn-lg">
+                            <x-icon name="whatsapp" class="h-5 w-5 text-wa-dark" /> Tanya Admin
+                        </a>
+                    @endif
+                </div>
+                <dl class="mt-10 grid max-w-md grid-cols-3 divide-x divide-stone-200 border-y border-stone-200 py-4 text-center">
+                    <div><dt class="text-xs text-stone-500">Koleksi</dt><dd class="font-display text-2xl font-bold">{{ $categories->sum('products_count') }}+</dd></div>
+                    <div><dt class="text-xs text-stone-500">Kategori</dt><dd class="font-display text-2xl font-bold">{{ $categories->count() }}</dd></div>
+                    <div><dt class="text-xs text-stone-500">Pesan</dt><dd class="font-display text-2xl font-bold">via WA</dd></div>
+                </dl>
+            </div>
+            <div class="relative animate-fade-up [animation-delay:150ms]">
+                <div class="absolute -right-10 -top-10 h-72 w-72 rounded-full bg-gold-200/50 blur-3xl"></div>
+                <div class="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-cream shadow-lift lg:rounded-t-full">
+                    @if ($heroImage)
+                        <img src="{{ $heroImage }}" alt="{{ $heroTitle }}" class="h-full w-full object-cover" fetchpriority="high">
+                    @elseif ($featured->first())
+                        <img src="{{ $featured->first()->image_url }}" alt="{{ $featured->first()->name }}" class="h-full w-full object-cover" fetchpriority="high">
+                    @endif
+                </div>
+                @if ($featured->first())
+                    <a href="{{ route('website.products.show', $featured->first()) }}" class="absolute -bottom-5 left-4 flex items-center gap-3 rounded-2xl bg-white/95 p-3 pr-5 shadow-lift backdrop-blur sm:left-[-1.5rem]">
+                        <img src="{{ $featured->first()->image_url }}" alt="" class="h-12 w-12 rounded-xl object-cover">
+                        <span>
+                            <span class="block text-[11px] font-medium uppercase tracking-wider text-gold-600">Pilihan Kami</span>
+                            <span class="block max-w-44 truncate text-sm font-semibold">{{ $featured->first()->name }}</span>
+                        </span>
+                    </a>
+                @endif
             </div>
         </div>
+    </section>
+@endif
+
+{{-- ===================== KEUNGGULAN ===================== --}}
+<section class="container-page mt-12 lg:mt-16">
+    <div class="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-stone-200 bg-stone-200 lg:grid-cols-4">
+        @foreach ([
+            ['gem', 'Model Pilihan', 'Dikurasi agar cocok dipakai harian maupun acara.'],
+            ['shield', 'Kualitas Terjaga', 'Dicek satu per satu sebelum dikirim.'],
+            ['whatsapp', 'Pesan Mudah', 'Cukup pilih produk, kirim lewat WhatsApp.'],
+            ['chat', 'Admin Responsif', 'Siap membantu memilih ukuran & model.'],
+        ] as [$icon, $title, $text])
+            <div class="flex flex-col gap-3 bg-white p-5 sm:flex-row sm:items-start lg:p-6">
+                <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gold-50 text-gold-600"><x-icon :name="$icon" /></span>
+                <div>
+                    <p class="text-sm font-semibold">{{ $title }}</p>
+                    <p class="mt-1 text-xs leading-relaxed text-stone-500">{{ $text }}</p>
+                </div>
+            </div>
+        @endforeach
     </div>
 </section>
 
-<!-- Featured Categories / Features (Static for modern feel) -->
-<section class="py-16 bg-white border-b border-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-            <div class="p-6">
-                <div class="w-16 h-16 mx-auto bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Kualitas Premium</h3>
-                <p class="text-gray-500 leading-relaxed">Perhiasan Xuping berkualitas yang tahan lama dan aman untuk semua jenis kulit.</p>
-            </div>
-            <div class="p-6">
-                <div class="w-16 h-16 mx-auto bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Harga Terjangkau</h3>
-                <p class="text-gray-500 leading-relaxed">Tampil mewah dan elegan tidak perlu mahal. Kami menawarkan harga terbaik.</p>
-            </div>
-            <div class="p-6">
-                <div class="w-16 h-16 mx-auto bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path></svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Desain Kekinian</h3>
-                <p class="text-gray-500 leading-relaxed">Pilihan model yang selalu update mengikuti tren aksesoris masa kini.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Featured Products -->
-<section class="py-20 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-end mb-12">
+{{-- ===================== KATEGORI ===================== --}}
+@if ($categories->isNotEmpty())
+    <section class="container-page mt-20">
+        <div class="flex items-end justify-between gap-4">
             <div>
-                <h2 class="text-3xl font-bold text-gray-900 mb-3">Koleksi Terbaru</h2>
-                <p class="text-gray-600">Perhiasan pilihan yang baru saja kami rilis.</p>
+                <p class="eyebrow">Kategori</p>
+                <h2 class="heading-display mt-2 text-4xl lg:text-5xl">Temukan gaya Anda</h2>
             </div>
-            <a href="{{ route('website.products.index') }}" class="hidden md:inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
-                Lihat Semua <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </a>
         </div>
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            @forelse($products as $product)
-            <a href="{{ route('website.products.show', $product->slug ?? $product->id) }}" class="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-indigo-100/50 transition-all duration-300">
-                <div class="aspect-[4/5] bg-gray-50 overflow-hidden relative">
-                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-                <div class="p-5">
-                    <p class="text-xs font-medium text-indigo-600 mb-1 tracking-wide uppercase">{{ $product->category->name ?? 'Aksesoris' }}</p>
-                    <h3 class="text-base font-bold text-gray-900 truncate mb-2">{{ $product->name }}</h3>
-                    <p class="text-lg text-gray-900 font-extrabold">
-                        Rp {{ number_format($product->price, 0, ',', '.') }}
-                    </p>
-                </div>
-            </a>
-            @empty
-            <div class="col-span-full py-20 text-center">
-                <p class="text-gray-500">Belum ada produk untuk ditampilkan.</p>
+        <div class="no-scrollbar -mx-4 mt-8 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 {{ [3 => 'lg:grid-cols-3', 4 => 'lg:grid-cols-4', 5 => 'lg:grid-cols-5'][min(max($categories->count(), 3), 5)] }}">
+            @foreach ($categories as $category)
+                <a href="{{ route('website.products.index', ['category' => $category->slug]) }}"
+                    class="group relative flex min-w-40 snap-start flex-col justify-between overflow-hidden rounded-2xl border border-stone-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-gold-300 hover:shadow-soft sm:min-w-0">
+                    <span class="grid h-10 w-10 place-items-center rounded-full bg-cream text-gold-600 transition group-hover:bg-ink group-hover:text-gold-300"><x-icon name="gem" class="h-4.5 w-4.5" /></span>
+                    <span class="mt-8">
+                        <span class="block font-display text-2xl font-semibold leading-tight">{{ $category->name }}</span>
+                        <span class="mt-1 flex items-center gap-1 text-xs text-stone-500">{{ $category->products_count }} produk <x-icon name="arrow-right" class="h-3 w-3 transition group-hover:translate-x-1" /></span>
+                    </span>
+                </a>
+            @endforeach
+        </div>
+    </section>
+@endif
+
+{{-- ===================== PRODUK UNGGULAN ===================== --}}
+@if ($featured->isNotEmpty())
+    <section class="container-page mt-20">
+        <div class="flex items-end justify-between gap-4">
+            <div>
+                <p class="eyebrow">Koleksi Unggulan</p>
+                <h2 class="heading-display mt-2 text-4xl lg:text-5xl">Paling dicari minggu ini</h2>
             </div>
-            @endforelse
-        </div>
-        
-        <div class="mt-10 text-center md:hidden">
-            <a href="{{ route('website.products.index') }}" class="inline-flex items-center justify-center w-full px-6 py-3 border border-gray-200 text-sm font-semibold rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-                Lihat Semua Koleksi
+            <a href="{{ route('website.products.index') }}" class="hidden items-center gap-1.5 text-sm font-semibold text-ink hover:text-gold-700 sm:flex">
+                Lihat semua <x-icon name="arrow-right" class="h-4 w-4" />
             </a>
         </div>
+        <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
+            @foreach ($featured as $product)
+                <x-website.product-card :product="$product" />
+            @endforeach
+        </div>
+        <div class="mt-10 text-center sm:hidden">
+            <a href="{{ route('website.products.index') }}" class="btn btn-outline">Lihat semua produk</a>
+        </div>
+    </section>
+@endif
+
+{{-- ===================== CARA PESAN ===================== --}}
+<section class="mt-24 bg-cream/60 py-20">
+    <div class="container-page">
+        <div class="mx-auto max-w-2xl text-center">
+            <p class="eyebrow">Cara Pesan</p>
+            <h2 class="heading-display mt-2 text-4xl lg:text-5xl">Tiga langkah, tanpa ribet</h2>
+            <p class="mt-4 text-stone-600">Tidak perlu daftar akun. Semua pesanan dikonfirmasi langsung oleh admin kami di WhatsApp.</p>
+        </div>
+        <ol class="mt-12 grid gap-6 md:grid-cols-3">
+            @foreach ([
+                ['Pilih produk', 'Tentukan ukuran dan warna, lalu tekan "Tambah ke Pesanan".'],
+                ['Kirim lewat WhatsApp', 'Buka Daftar Pesanan dan kirim semuanya dalam satu pesan.'],
+                ['Konfirmasi & bayar', 'Admin mengonfirmasi stok, ongkir, dan cara pembayaran.'],
+            ] as $i => [$title, $text])
+                <li class="relative rounded-2xl bg-white p-7 shadow-soft">
+                    <span class="font-display text-6xl font-bold leading-none text-gold-200">0{{ $i + 1 }}</span>
+                    <p class="mt-4 text-lg font-semibold">{{ $title }}</p>
+                    <p class="mt-2 text-sm leading-relaxed text-stone-500">{{ $text }}</p>
+                </li>
+            @endforeach
+        </ol>
     </div>
 </section>
 
-<!-- CTA Section - Soft Neutral Elegant -->
-<section class="py-24 bg-slate-100 relative overflow-hidden border-y border-slate-200/60">
-    <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
-        
-        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
-            Siap Untuk Tampil Lebih Memukau?
-        </h2>
-        
-        <p class="text-slate-600 text-lg mb-8 max-w-xl mx-auto leading-relaxed">
-            Tingkatkan rasa percaya diri Anda dengan sentuhan aksesoris yang tepat. Temukan gaya Anda hari ini.
-        </p>
+{{-- ===================== PRODUK TERBARU ===================== --}}
+@if ($newArrivals->count() >= 2)
+    <section class="container-page mt-20">
+        <div class="grid items-center gap-10 lg:grid-cols-5">
+            <div class="lg:col-span-2">
+                <p class="eyebrow">Baru Datang</p>
+                <h2 class="heading-display mt-2 text-4xl lg:text-5xl">Koleksi terbaru kami</h2>
+                <p class="mt-4 max-w-sm text-stone-600">Model-model terbaru yang baru saja masuk. Stok terbatas, jangan sampai kehabisan.</p>
+                <a href="{{ route('website.products.index') }}" class="btn btn-dark mt-6">Lihat yang terbaru <x-icon name="arrow-right" class="h-4 w-4" /></a>
+            </div>
+            <div class="grid grid-cols-2 gap-4 lg:col-span-3 lg:gap-6">
+                @foreach ($newArrivals->take(2) as $product)
+                    <x-website.product-card :product="$product" />
+                @endforeach
+            </div>
+        </div>
+    </section>
+@endif
 
-        <a href="{{ route('website.products.index') }}" class="group inline-flex justify-center items-center px-8 py-4 text-base font-bold rounded-full text-white bg-slate-900 hover:bg-indigo-600 hover:scale-105 transition-all duration-300 shadow-xl shadow-slate-900/20">
-            <span>Mulai Belanja Sekarang</span>
-            <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-            </svg>
-        </a>
+{{-- ===================== TESTIMONI ===================== --}}
+@if ($testimonials->isNotEmpty())
+    <section class="container-page mt-24">
+        <div class="text-center">
+            <p class="eyebrow">Testimoni</p>
+            <h2 class="heading-display mt-2 text-4xl lg:text-5xl">Kata mereka</h2>
+        </div>
+        <div class="no-scrollbar -mx-4 mt-10 flex snap-x gap-4 overflow-x-auto px-4 pb-4 md:mx-0 md:grid md:grid-cols-3 md:px-0">
+            @foreach ($testimonials as $t)
+                @include('website.partials.testimonial', ['t' => $t])
+            @endforeach
+        </div>
+    </section>
+@endif
+
+{{-- ===================== CTA ===================== --}}
+<section class="container-page mt-24">
+    <div class="relative overflow-hidden rounded-3xl bg-ink px-6 py-14 text-center sm:px-12 lg:py-20">
+        <div class="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-gold-500/20 blur-3xl"></div>
+        <div class="absolute -bottom-24 -right-10 h-72 w-72 rounded-full bg-gold-300/10 blur-3xl"></div>
+        <div class="relative">
+            <p class="eyebrow text-gold-300">Butuh bantuan memilih?</p>
+            <h2 class="mx-auto mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight text-white lg:text-5xl">Konsultasikan ukuran & model favorit Anda dengan admin kami</h2>
+            <div class="mt-8 flex flex-wrap justify-center gap-3">
+                @if ($wa)
+                    <a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener" class="btn btn-wa btn-lg"><x-icon name="whatsapp" class="h-5 w-5" /> Chat WhatsApp</a>
+                @endif
+                <a href="{{ route('website.products.index') }}" class="btn btn-lg border border-white/20 text-white hover:bg-white/10">Lihat Katalog</a>
+            </div>
+        </div>
     </div>
 </section>
 @endsection
+
+@push('meta')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'Store',
+    'name' => $siteName,
+    'url' => url('/'),
+    'image' => $heroImage ?? asset('android-chrome-512x512.png'),
+    'telephone' => $settings['whatsapp_number'] ?? $settings['contact_phone'] ?? null,
+    'address' => $settings['contact_address'] ?? null,
+    'sameAs' => array_values(array_filter([$settings['instagram_url'] ?? null, $settings['tiktok_url'] ?? null, $settings['facebook_url'] ?? null, $settings['shopee_url'] ?? null])),
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+@endpush
