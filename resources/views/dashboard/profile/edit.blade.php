@@ -43,7 +43,7 @@
             </div>
             <div>
                 <label for="current_password" class="label">Kata sandi saat ini</label>
-                <input id="current_password" name="current_password" type="password" class="input" autocomplete="current-password">
+                <input id="current_password" name="current_password" type="password" class="input" autocomplete="off">
                 @error('current_password')<p class="error">{{ $message }}</p>@enderror
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
