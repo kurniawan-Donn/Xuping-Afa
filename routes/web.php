@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebsiteController;
 use Illuminate\Support\Facades\Route;
@@ -13,27 +16,33 @@ Route::get('/', [WebsiteController::class, 'index'])->name('website.index');
 Route::get('/about', [WebsiteController::class, 'about'])->name('website.about');
 Route::get('/products', [WebsiteController::class, 'productIndex'])->name('website.products.index');
 Route::get('/products/{product:slug}', [WebsiteController::class, 'productShow'])->name('website.products.show');
+Route::post('/wa-click', [WebsiteController::class, 'waClick'])->middleware('throttle:30,1')->name('website.wa-click');
+Route::get('/sitemap.xml', [WebsiteController::class, 'sitemap'])->name('website.sitemap');
+
 Route::middleware('guest')->prefix('login')->group(function () {
     Route::get('/', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/', [AuthController::class, 'processLogin'])->name('login.store');
+    Route::post('/', [AuthController::class, 'processLogin'])->middleware('throttle:10,1')->name('login.store');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'prevent-back-history'])->prefix('dashboard')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    
-    Route::get('/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
-    
+
     Route::resource('categories', CategoryController::class)->except(['create', 'show', 'edit']);
     Route::resource('products', ProductController::class);
-    
+    Route::patch('/products/{product}/stock', [ProductController::class, 'updateStock'])->name('products.stock');
+    Route::resource('banners', BannerController::class)->except(['show']);
+    Route::resource('testimonials', TestimonialController::class)->except(['show']);
+
     Route::post('/product-images/{image}/set-primary', [ProductController::class, 'setPrimaryImage'])->name('product-images.set-primary');
     Route::delete('/product-images/{image}', [ProductController::class, 'deleteImage'])->name('product-images.destroy');
 
     Route::middleware(['role:owner|superadmin'])->group(function () {
         Route::post('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
         Route::resource('users', UserController::class)->except(['show']);
+
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
     });
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
