@@ -184,6 +184,21 @@ class DashboardTest extends TestCase
         $this->get('/')->assertSee('Halo kak, mau pesan:');
     }
 
+    public function test_user_with_products_cannot_be_deleted(): void
+    {
+        $this->makeProduct(['user_id' => $this->admin->id, 'created_by' => $this->admin->id]);
+
+        $this->actingAs($this->owner)->delete("/dashboard/users/{$this->admin->id}")->assertSessionHas('error');
+
+        $this->assertNotNull($this->admin->fresh());
+        $this->assertSame(1, Product::count());
+
+        $empty = User::factory()->create();
+        $empty->assignRole('admin');
+        $this->actingAs($this->owner)->delete("/dashboard/users/{$empty->id}")->assertSessionHas('success');
+        $this->assertNull($empty->fresh());
+    }
+
     public function test_inactive_user_cannot_log_in(): void
     {
         $user = User::factory()->create(['email' => 'off@example.test', 'is_active' => false]);
