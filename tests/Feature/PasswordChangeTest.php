@@ -47,6 +47,26 @@ class PasswordChangeTest extends TestCase
         $this->assertSame('Nama Baru', $user->fresh()->name);
     }
 
+    public function test_corrupted_password_hash_shows_login_error_instead_of_500(): void
+    {
+        $user = User::factory()->create(['email' => 'rusak@example.test', 'is_active' => true]);
+        \Illuminate\Support\Facades\DB::table('users')->where('id', $user->id)->update(['password' => 'bukan-hash']);
+
+        $this->post('/login', ['email' => 'rusak@example.test', 'password' => 'apa saja'])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+        $this->assertGuest();
+    }
+
+    public function test_hash_generated_with_cost_10_can_log_in(): void
+    {
+        $user = User::factory()->create(['email' => 'reset@example.test', 'is_active' => true]);
+        \Illuminate\Support\Facades\DB::table('users')->where('id', $user->id)
+            ->update(['password' => password_hash('PasswordBaru123', PASSWORD_BCRYPT, ['cost' => 10])]);
+
+        $this->post('/login', ['email' => 'reset@example.test', 'password' => 'PasswordBaru123'])->assertRedirect('/dashboard');
+    }
+
     public function test_saving_profile_without_password_keeps_old_password(): void
     {
         $user = User::factory()->create(['email' => 'admin@example.test', 'is_active' => true]);
