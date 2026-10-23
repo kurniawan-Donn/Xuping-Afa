@@ -52,7 +52,7 @@
     </div>
 
     <!-- Table Container -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative" x-ref="tableContainer">
         
         <!-- Loading Overlay -->
         <div x-show="loading" class="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center" style="display: none;">
@@ -62,19 +62,19 @@
             </svg>
         </div>
 
-        <div id="table-container">
-            @include('dashboard.users._table')
-        </div>
+        @include('dashboard.users._table')
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
 document.addEventListener('alpine:init', () => {
     Alpine.data('userManager', () => ({
-        search: '',
-        status: '',
-        role: '',
-        perPage: '10',
+        search: '{{ request('search') }}',
+        status: '{{ request('status') }}',
+        role: '{{ request('role') }}',
+        perPage: '{{ request('per_page', 10) }}',
         loading: false,
 
         init() {
@@ -82,24 +82,14 @@ document.addEventListener('alpine:init', () => {
             this.$watch('status', () => this.fetchUsers());
             this.$watch('role', () => this.fetchUsers());
             this.$watch('perPage', () => this.fetchUsers());
-            
-            // Handle pagination clicks
-            document.getElementById('table-container').addEventListener('click', (e) => {
-                const link = e.target.closest('a.page-link');
-                if (link) {
-                    e.preventDefault();
-                    this.fetchUsers(link.href);
-                }
-            });
+            this.initPagination();
         },
 
         fetchUsers(url = null) {
             this.loading = true;
             
-            let targetUrl = url;
-            if (!targetUrl || typeof targetUrl !== 'string') {
-                targetUrl = '{{ route('users.index') }}';
-            }
+            // Menggunakan pathname browser agar HTTPS & path selalu benar
+            let targetUrl = url || window.location.pathname;
             
             const params = new URLSearchParams(targetUrl.includes('?') ? targetUrl.split('?')[1] : '');
             if (this.search) params.set('search', this.search);
@@ -109,23 +99,42 @@ document.addEventListener('alpine:init', () => {
             
             const finalUrl = `${targetUrl.split('?')[0]}?${params.toString()}`;
 
+            // Update URL tanpa reload (aman untuk HTTPS)
+            try {
+                window.history.pushState({}, '', finalUrl);
+            } catch (e) {
+                console.warn('pushState failed:', e);
+            }
+
             fetch(finalUrl, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(res => res.text())
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.text();
+            })
             .then(html => {
-                document.getElementById('table-container').innerHTML = html;
-                
-                // Re-initialize Alpine in the new HTML
-                const tableContainer = document.getElementById('table-container');
-                if (window.Alpine) {
-                    window.Alpine.initTree(tableContainer);
-                }
+                this.$refs.tableContainer.innerHTML = html;
+                this.initPagination();
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                alert('Gagal memuat data. Silakan muat ulang halaman.');
             })
             .finally(() => {
                 this.loading = false;
+            });
+        },
+
+        initPagination() {
+            const links = this.$refs.tableContainer.querySelectorAll('nav a');
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.fetchUsers(link.href);
+                });
             });
         },
 
@@ -178,4 +187,4 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 </script>
-@endsection
+@endpush

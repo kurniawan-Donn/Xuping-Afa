@@ -16,7 +16,7 @@
     </a>
 </div>
 
-<div x-data="productTable()" x-init="initPagination()">
+<div x-data="productTable()">
     <!-- Filters -->
     <div class="mb-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -56,7 +56,9 @@
         @include('dashboard.products._table')
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
 document.addEventListener('alpine:init', () => {
     Alpine.data('productTable', () => ({
@@ -71,46 +73,51 @@ document.addEventListener('alpine:init', () => {
             this.$watch('per_page', () => this.fetchData());
             this.$watch('category_id', () => this.fetchData());
             this.$watch('status', () => this.fetchData());
+            this.initPagination();
         },
 
         fetchData(url = null) {
-    this.loading = true;
-    let targetUrl = url || '{{ route('products.index') }}';
-    let params = new URLSearchParams({
-        search: this.search,
-        per_page: this.per_page,
-        category_id: this.category_id,
-        status: this.status
-    });
+            this.loading = true;
+            let targetUrl = url || window.location.pathname;
+            let params = new URLSearchParams({
+                search: this.search,
+                per_page: this.per_page,
+                category_id: this.category_id,
+                status: this.status
+            });
 
-    if (!url) {
-        targetUrl += '?' + params.toString();
-    }
+            if (!url) {
+                targetUrl += '?' + params.toString();
+            }
 
-    window.history.pushState({}, '', targetUrl);
+            try {
+   				const urlObj = new URL(targetUrl, window.location.origin);
+    			window.history.pushState({}, '', urlObj.pathname + urlObj.search);
+			} catch (e) {
+    			console.warn('pushState failed:', e);
+			}
 
-    fetch(targetUrl, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(res => {
-        if (!res.ok) throw new Error('Network response was not ok');
-        return res.text();
-    })
-    .then(html => {
-        this.$refs.tableContainer.innerHTML = html;
-        this.initPagination();
-    })
-    .catch(error => {
-        console.error('Error fetching data:', error);
-        alert('Gagal memuat data. Silakan muat ulang halaman.');
-    })
-    .finally(() => {
-        // Apapun yang terjadi, loading akan berhenti
-        this.loading = false;
-    });
-}
+            fetch(targetUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.text();
+            })
+            .then(html => {
+                this.$refs.tableContainer.innerHTML = html;
+                this.initPagination();
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                alert('Gagal memuat data. Silakan muat ulang halaman.');
+            })
+            .finally(() => {
+                this.loading = false;
+            });
+        },
 
         initPagination() {
             const links = this.$refs.tableContainer.querySelectorAll('nav a');
@@ -124,6 +131,4 @@ document.addEventListener('alpine:init', () => {
     }));
 });
 </script>
-
-
-@endsection
+@endpush
