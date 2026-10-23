@@ -1,47 +1,68 @@
-<footer class="bg-gray-900 text-white pt-16 pb-8 border-t border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-            <div>
-                <span class="text-2xl font-bold tracking-tight mb-6 block">Afa<span class="text-indigo-400">Xuping</span></span>
-                <p class="text-gray-400 text-sm leading-relaxed mb-6 max-w-xs">
-                    {{ $settings['about_content'] ?? 'Kami menyediakan berbagai macam aksesoris perhiasan xuping berkualitas tinggi dengan harga yang terjangkau.' }}
-                </p>
-            </div>
-            <div>
-                <h4 class="text-sm font-semibold tracking-wider uppercase mb-6 text-gray-300">Tautan Pintas</h4>
-                <ul class="space-y-3">
-                    <li><a href="{{ route('website.index') }}" class="text-sm text-gray-400 hover:text-white transition-colors">Beranda</a></li>
-                    <li><a href="{{ route('website.products.index') }}" class="text-sm text-gray-400 hover:text-white transition-colors">Katalog Aksesoris</a></li>
-                    <li><a href="{{ route('website.about') }}" class="text-sm text-gray-400 hover:text-white transition-colors">Tentang Kami</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-sm font-semibold tracking-wider uppercase mb-6 text-gray-300">Hubungi Kami</h4>
-                <ul class="space-y-4">
-                    <li class="flex gap-3 text-sm text-gray-400">
-                        <svg class="w-5 h-5 shrink-0 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span>{{ $settings['contact_address'] ?? 'Pusat Aksesoris Jakarta' }}</span>
-                    </li>
-                    <li class="flex gap-3 text-sm text-gray-400">
-                        <svg class="w-5 h-5 shrink-0 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        <span>{{ $settings['contact_email'] ?? 'hello@afaxuping.com' }}</span>
-                    </li>
-                    <li class="flex gap-3 text-sm text-gray-400">
-                        <svg class="w-5 h-5 shrink-0 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                        </svg>
-                        <span>{{ $settings['contact_phone'] ?? '+62 812 3456 7890' }}</span>
-                    </li>
-                </ul>
-            </div>
+@php
+    $siteName = $settings['site_name'] ?? 'Afa Xuping Accessories';
+    $socials = array_filter([
+        'instagram' => $settings['instagram_url'] ?? null,
+        'tiktok' => $settings['tiktok_url'] ?? null,
+        'facebook' => $settings['facebook_url'] ?? null,
+    ]);
+    $wa = \App\Models\Setting::whatsappNumber();
+@endphp
+<footer class="mt-24 bg-ink text-stone-400">
+    <div class="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-4">
+        <div class="lg:col-span-2">
+            <p class="font-display text-3xl font-bold text-white">Afa Xuping</p>
+            <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gold-400">Accessories</p>
+            <p class="mt-5 max-w-sm text-sm leading-relaxed">
+                {{ $settings['meta_description'] ?? 'Perhiasan Xuping pilihan untuk menemani setiap momen Anda. Pesan mudah, langsung lewat WhatsApp.' }}
+            </p>
+            @if ($socials || ! empty($settings['shopee_url']))
+                <div class="mt-6 flex items-center gap-2">
+                    @foreach ($socials as $icon => $url)
+                        <a href="{{ $url }}" target="_blank" rel="noopener" aria-label="{{ ucfirst($icon) }}"
+                            class="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-stone-300 transition hover:border-gold-400 hover:text-gold-300">
+                            <x-icon :name="$icon" class="h-4.5 w-4.5" />
+                        </a>
+                    @endforeach
+                    @if (! empty($settings['shopee_url']))
+                        <a href="{{ $settings['shopee_url'] }}" target="_blank" rel="noopener"
+                            class="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-stone-300 transition hover:border-gold-400 hover:text-gold-300">Shopee</a>
+                    @endif
+                </div>
+            @endif
         </div>
-        <div class="pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
-            <p>&copy; {{ date('Y') }} {{ $settings['footer_text'] ?? 'Afa Xuping. Hak Cipta Dilindungi.' }}</p>
+
+        <div>
+            <p class="eyebrow text-gold-400">Jelajahi</p>
+            <ul class="mt-5 space-y-3 text-sm">
+                <li><a href="{{ route('website.index') }}" class="transition hover:text-white">Beranda</a></li>
+                <li><a href="{{ route('website.products.index') }}" class="transition hover:text-white">Katalog Produk</a></li>
+                <li><a href="{{ route('website.products.index', ['sort' => 'popular']) }}" class="transition hover:text-white">Paling Diminati</a></li>
+                <li><a href="{{ route('website.about') }}" class="transition hover:text-white">Tentang Kami</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <p class="eyebrow text-gold-400">Hubungi Kami</p>
+            <ul class="mt-5 space-y-3 text-sm">
+                @if ($wa)
+                    <li><a href="https://wa.me/{{ $wa }}" target="_blank" rel="noopener" class="flex items-center gap-2.5 transition hover:text-white"><x-icon name="whatsapp" class="h-4 w-4" /> {{ $settings['whatsapp_number'] ?? $settings['contact_phone'] }}</a></li>
+                @endif
+                @if (! empty($settings['contact_email']))
+                    <li><a href="mailto:{{ $settings['contact_email'] }}" class="flex items-center gap-2.5 transition hover:text-white"><x-icon name="mail" class="h-4 w-4" /> {{ $settings['contact_email'] }}</a></li>
+                @endif
+                @if (! empty($settings['opening_hours']))
+                    <li class="flex items-start gap-2.5"><x-icon name="clock" class="mt-0.5 h-4 w-4" /> {{ $settings['opening_hours'] }}</li>
+                @endif
+                @if (! empty($settings['contact_address']))
+                    <li class="flex items-start gap-2.5"><x-icon name="map-pin" class="mt-0.5 h-4 w-4" /> <span>{{ $settings['contact_address'] }}</span></li>
+                @endif
+            </ul>
+        </div>
+    </div>
+    <div class="border-t border-white/10">
+        <div class="container-page flex flex-col items-center justify-between gap-2 py-6 text-xs sm:flex-row">
+            <p>&copy; {{ date('Y') }} {{ $settings['footer_text'] ?? $siteName }}. Semua hak dilindungi.</p>
+            <p class="text-stone-500">Harga dan ketersediaan dapat berubah sewaktu-waktu.</p>
         </div>
     </div>
 </footer>

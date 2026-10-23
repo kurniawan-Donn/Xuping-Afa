@@ -1,134 +1,55 @@
 @extends('layouts.dashboard')
-@section('title', 'Produk - Admin Afa Xuping')
-@section('header_title', 'Kelola Produk')
+@section('title', 'Produk — Admin Afa Xuping')
+@section('header_title', 'Produk')
 
 @section('content')
-<div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div>
-        <h2 class="text-xl font-bold text-gray-800">Daftar Produk</h2>
-        <p class="text-sm text-gray-500">Kelola katalog produk Anda</p>
-    </div>
-    <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Tambah Produk
-    </a>
-</div>
+<x-dash.header title="Produk" subtitle="Kelola katalog, harga, varian, dan stok.">
+    <a href="{{ route('products.create') }}" class="btn btn-dark"><x-icon name="plus" class="h-4 w-4" /> Tambah Produk</a>
+</x-dash.header>
 
-<div x-data="productTable()">
-    <!-- Filters -->
-    <div class="mb-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-            <label for="per_page" class="text-sm text-gray-600 whitespace-nowrap">Tampilkan</label>
-            <select x-model="per_page" class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
-            <span class="text-sm text-gray-600">data</span>
-        </div>
-        
-        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <select x-model="category_id" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 w-full sm:w-40">
-                <option value="">Semua Kategori</option>
-                @foreach($categories as $cat)
-                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                @endforeach
-            </select>
-            
-            <select x-model="status" class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 w-full sm:w-36">
-                <option value="">Semua Status</option>
-                <option value="1">Aktif</option>
-                <option value="0">Nonaktif</option>
-            </select>
-
-            <div class="w-full sm:w-64 relative">
-                <input type="text" x-model.debounce.500ms="search" placeholder="Cari produk..." class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
-                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </div>
-        </div>
+<div x-data="liveFilter({
+        search: @js(request('search', '')),
+        category_id: @js(request('category_id', '')),
+        status: @js(request('status', '')),
+        stock: @js(request('stock', '')),
+        per_page: @js((string) $perPage),
+    })">
+    <div class="card mb-4 grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-[1fr_180px_150px_150px_110px]">
+        <label class="relative">
+            <span class="sr-only">Cari produk</span>
+            <x-icon name="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+            <input type="search" x-model.debounce.400ms="search" class="input pl-9" placeholder="Cari nama produk…">
+        </label>
+        <select x-model="category_id" class="input" aria-label="Kategori">
+            <option value="">Semua kategori</option>
+            @foreach ($categories as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}</option>
+            @endforeach
+        </select>
+        <select x-model="status" class="input" aria-label="Status">
+            <option value="">Semua status</option>
+            <option value="1">Aktif</option>
+            <option value="0">Draf</option>
+        </select>
+        <select x-model="stock" class="input" aria-label="Stok">
+            <option value="">Semua stok</option>
+            <option value="low">Stok menipis</option>
+            <option value="out">Stok habis</option>
+        </select>
+        <select x-model="per_page" class="input" aria-label="Per halaman">
+            @foreach ([10, 25, 50] as $n)
+                <option value="{{ $n }}">{{ $n }} / hal</option>
+            @endforeach
+        </select>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" x-ref="tableContainer">
-        @include('dashboard.products._table')
+    <div class="card relative overflow-hidden">
+        <div x-cloak x-show="loading" class="absolute inset-0 z-10 grid place-items-center bg-white/60">
+            <span class="h-7 w-7 animate-spin rounded-full border-2 border-gold-200 border-t-gold-600"></span>
+        </div>
+        <div x-ref="results">
+            @include('dashboard.products._table')
+        </div>
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('productTable', () => ({
-        search: '{{ request('search') }}',
-        per_page: '{{ request('per_page', 10) }}',
-        category_id: '{{ request('category_id') }}',
-        status: '{{ request('status') }}',
-        loading: false,
-
-        init() {
-            this.$watch('search', () => this.fetchData());
-            this.$watch('per_page', () => this.fetchData());
-            this.$watch('category_id', () => this.fetchData());
-            this.$watch('status', () => this.fetchData());
-            this.initPagination();
-        },
-
-        fetchData(url = null) {
-            this.loading = true;
-            let targetUrl = url || window.location.pathname;
-            let params = new URLSearchParams({
-                search: this.search,
-                per_page: this.per_page,
-                category_id: this.category_id,
-                status: this.status
-            });
-
-            if (!url) {
-                targetUrl += '?' + params.toString();
-            }
-
-            try {
-   				const urlObj = new URL(targetUrl, window.location.origin);
-    			window.history.pushState({}, '', urlObj.pathname + urlObj.search);
-			} catch (e) {
-    			console.warn('pushState failed:', e);
-			}
-
-            fetch(targetUrl, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(res => {
-                if (!res.ok) throw new Error('Network response was not ok');
-                return res.text();
-            })
-            .then(html => {
-                this.$refs.tableContainer.innerHTML = html;
-                this.initPagination();
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                alert('Gagal memuat data. Silakan muat ulang halaman.');
-            })
-            .finally(() => {
-                this.loading = false;
-            });
-        },
-
-        initPagination() {
-            const links = this.$refs.tableContainer.querySelectorAll('nav a');
-            links.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.fetchData(link.href);
-                });
-            });
-        }
-    }));
-});
-</script>
-@endpush
