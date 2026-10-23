@@ -1,523 +1,219 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# ✨ Afa Xuping Accessories
 
-## About Laravel
+**Katalog perhiasan Xuping yang elegan, dengan pemesanan semudah satu chat WhatsApp.**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+[![Kunjungi Website](https://img.shields.io/badge/🌐_Kunjungi-xuping--afa.my.id-b88a3e?style=for-the-badge)](https://xuping-afa.my.id)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?logo=php&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38BDF8?logo=tailwindcss&logoColor=white)
+![Alpine.js](https://img.shields.io/badge/Alpine.js-3-8BC0D0?logo=alpinedotjs&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-25_lulus-2ea44f)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+<br>
 
-## Learning Laravel
+<img src="docs/screenshots/beranda-desktop.png" alt="Beranda Afa Xuping Accessories" width="100%">
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+</div>
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 💎 Tentang Proyek
 
-## Agentic Development
+Afa Xuping Accessories adalah website katalog untuk toko perhiasan Xuping. Pengunjung menjelajahi koleksi, memilih **warna dan ukuran**, mengumpulkan beberapa produk ke **Daftar Pesanan**, lalu mengirim semuanya ke admin dalam **satu pesan WhatsApp yang rapi**: tanpa daftar akun, tanpa checkout yang ribet.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Di balik layar, pemilik toko mengelola produk, stok, banner, testimoni, dan seluruh teks website dari satu **dashboard admin**, sekaligus melihat produk mana yang paling sering dipesan.
+
+<div align="center">
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/beranda-mobile.png" alt="Beranda versi HP" width="240"><br><sub><b>Beranda</b></sub></td>
+    <td align="center"><img src="docs/screenshots/katalog-mobile.png" alt="Katalog versi HP" width="240"><br><sub><b>Katalog & filter</b></sub></td>
+    <td align="center"><img src="docs/screenshots/produk-mobile.png" alt="Detail produk versi HP" width="240"><br><sub><b>Detail produk</b></sub></td>
+  </tr>
+</table>
+<sub>Dirancang <i>mobile-first</i>, lengkap dengan navigasi bawah ala aplikasi.</sub>
+</div>
+
+---
+
+## 🛍️ Fitur
+
+### Untuk pembeli
+
+| | Fitur | Keterangan |
+|---|---|---|
+| 🧺 | **Daftar Pesanan** | Kumpulkan beberapa produk + varian, lalu kirim sekaligus lewat WhatsApp |
+| 💍 | **Varian produk** | Pilihan warna (Gold, Silver, Rose Gold) dan ukuran cincin/kalung |
+| 🔎 | **Katalog pintar** | Pencarian, filter kategori & harga, "hanya yang tersedia", dan urutan, tanpa muat ulang halaman |
+| 🖼️ | **Galeri foto** | Geser foto di HP, zoom layar penuh, dan produk terkait |
+| 🏷️ | **Label & diskon** | Baru · Promo · Terlaris, harga coret, dan persentase hemat |
+| 📦 | **Status stok** | Tampil "Tersedia" atau "Habis", plus tombol tanya ketersediaan |
+| 🔗 | **Siap dibagikan** | Preview link otomatis berisi foto & harga saat dibagikan ke WhatsApp/Facebook |
+
+<img src="docs/screenshots/katalog-desktop.png" alt="Halaman katalog dengan filter" width="100%">
+
+### Untuk admin
+
+| | Fitur | Keterangan |
+|---|---|---|
+| 📊 | **Dashboard ringkas** | Produk paling diminati (dari klik WhatsApp) dan daftar yang perlu restok |
+| ⚡ | **Edit stok kilat** | Ubah angka stok langsung di tabel, tersimpan otomatis |
+| 🗂️ | **Kelola konten** | Produk, kategori, banner slider, dan testimoni pelanggan |
+| 💬 | **Pengaturan WhatsApp** | Nomor tujuan dan kalimat pembuka, lengkap dengan pratinjau pesan |
+| 🌐 | **Pengaturan website** | Logo, teks beranda & Tentang Kami, kontak, Google Maps, media sosial, SEO |
+| 🪶 | **Foto otomatis ringan** | Setiap foto upload diperkecil dan dikonversi ke WebP |
+| 👥 | **Hak akses bertingkat** | Superadmin, Owner, dan Admin dengan wewenang berbeda |
+
+---
+
+## 💬 Cara Kerja Pemesanan
+
+```mermaid
+flowchart LR
+    A["🛍️ Pilih produk"] --> B["💍 Pilih warna & ukuran"]
+    B --> C["🧺 Tambah ke<br/>Daftar Pesanan"]
+    C --> D["📲 Kirim via WhatsApp"]
+    D --> E["✅ Admin konfirmasi<br/>stok & ongkir"]
+```
+
+Pesan yang diterima admin tersusun otomatis seperti ini:
+
+```text
+Halo Afa Xuping Accessories, saya ingin memesan:
+
+1. *Cincin Tunangan Emas Wanita Klasik*
+   Ukuran: 7 | Warna: Rose Gold
+   1 x Rp 199.988 = Rp 199.988
+   https://xuping-afa.my.id/products/...
+
+*Total: Rp 199.988*
+
+Nama: Rina
+Alamat: Jl. Mawar No. 3, Denpasar
+```
+
+Setiap pesan yang dikirim juga tercatat sebagai "klik WhatsApp", sehingga admin tahu produk mana yang paling diminati.
+
+---
+
+## 🧰 Teknologi
+
+| Lapisan | Teknologi |
+|---|---|
+| Backend | [Laravel 13](https://laravel.com), PHP 8.3+ |
+| Tampilan | Blade, [Tailwind CSS 4](https://tailwindcss.com), [Alpine.js 3](https://alpinejs.dev) |
+| Hak akses | [spatie/laravel-permission](https://spatie.be/docs/laravel-permission) |
+| Notifikasi | [SweetAlert2](https://sweetalert2.github.io) |
+| Font | Cormorant Garamond & Inter (di-host sendiri) |
+| Database | MySQL / MariaDB |
+| Hosting | InfinityFree |
+
+---
+
+## 👥 Peran Pengguna
+
+| Akses | Superadmin | Owner | Admin |
+|---|:---:|:---:|:---:|
+| Produk, kategori, banner, testimoni | ✅ | ✅ | ✅ |
+| Pengaturan website & WhatsApp | ✅ | ✅ | ❌ |
+| Kelola akun admin | ✅ | ✅ | ❌ |
+| Kelola akun owner | ✅ | ❌ | ❌ |
+
+> Akun yang masih memiliki produk tidak bisa dihapus supaya produknya tidak ikut hilang. Gunakan **nonaktifkan** sebagai gantinya.
+
+---
+
+## 🚀 Menjalankan di Komputer Lokal
+
+**Kebutuhan:** PHP 8.3+, Composer, Node.js 20+, dan MySQL/MariaDB (misalnya lewat [Laragon](https://laragon.org)).
 
 ```bash
-composer require laravel/boost --dev
+# 1. Ambil kode & pasang dependensi
+git clone https://github.com/kurniawan-Donn/Xuping-Afa.git
+cd Xuping-Afa
+composer install
+npm install
 
-php artisan boost:install
+# 2. Siapkan konfigurasi
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Buka `.env`, lalu arahkan ke database lokal Anda:
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=afa_xuping
+DB_USERNAME=root
+DB_PASSWORD=
 ```
-Xuping-Afa
-├─ .editorconfig
-├─ .npmrc
-├─ app
-│  ├─ Http
-│  │  ├─ Controllers
-│  │  │  ├─ AuthController.php
-│  │  │  ├─ BannerController.php
-│  │  │  ├─ CategoryController.php
-│  │  │  ├─ Controller.php
-│  │  │  ├─ DashboardController.php
-│  │  │  ├─ ProductController.php
-│  │  │  ├─ ProfileController.php
-│  │  │  ├─ SettingController.php
-│  │  │  ├─ UserController.php
-│  │  │  └─ WebsiteController.php
-│  │  └─ Middleware
-│  │     └─ PreventBackHistory.php
-│  ├─ Models
-│  │  ├─ Banner.php
-│  │  ├─ Category.php
-│  │  ├─ Product.php
-│  │  ├─ ProductImage.php
-│  │  ├─ Setting.php
-│  │  └─ User.php
-│  └─ Providers
-│     └─ AppServiceProvider.php
-├─ artisan
-├─ bootstrap
-│  ├─ app.php
-│  ├─ cache
-│  │  ├─ packages.php
-│  │  └─ services.php
-│  └─ providers.php
-├─ composer.json
-├─ composer.lock
-├─ config
-│  ├─ app.php
-│  ├─ auth.php
-│  ├─ cache.php
-│  ├─ database.php
-│  ├─ filesystems.php
-│  ├─ logging.php
-│  ├─ mail.php
-│  ├─ permission.php
-│  ├─ queue.php
-│  ├─ services.php
-│  └─ session.php
-├─ database
-│  ├─ factories
-│  │  └─ UserFactory.php
-│  ├─ migrations
-│  │  ├─ 0001_01_01_000000_create_users_table.php
-│  │  ├─ 0001_01_01_000001_create_cache_table.php
-│  │  ├─ 0001_01_01_000002_create_jobs_table.php
-│  │  ├─ 2026_08_01_163015_create_permission_tables.php
-│  │  ├─ 2026_08_01_163926_create_banners_table.php
-│  │  ├─ 2026_08_01_164238_create_categories_table.php
-│  │  ├─ 2026_08_01_164325_create_products_table.php
-│  │  ├─ 2026_08_01_164514_create_product_images_table.php
-│  │  ├─ 2026_08_10_044315_add_avatar_to_users_table.php
-│  │  └─ 2026_08_10_063930_create_settings_table.php
-│  └─ seeders
-│     ├─ DatabaseSeeder.php
-│     └─ RolePermissionSeeder.php
-├─ package-lock.json
-├─ package.json
-├─ phpunit.xml
-├─ public
-│  ├─ .htaccess
-│  ├─ favicon.ico
-│  ├─ index.php
-│  └─ robots.txt
-├─ README.md
-├─ resources
-│  ├─ css
-│  │  └─ app.css
-│  ├─ js
-│  │  └─ app.js
-│  └─ views
-│     ├─ auth
-│     │  └─ login.blade.php
-│     ├─ components
-│     │  ├─ alert.blade.php
-│     │  ├─ dashboard
-│     │  │  ├─ navbar.blade.php
-│     │  │  └─ sidebar.blade.php
-│     │  └─ website
-│     │     ├─ footer.blade.php
-│     │     └─ navbar.blade.php
-│     ├─ dashboard
-│     │  ├─ categories
-│     │  │  ├─ index.blade.php
-│     │  │  └─ _table.blade.php
-│     │  ├─ index.blade.php
-│     │  ├─ products
-│     │  │  ├─ create.blade.php
-│     │  │  ├─ edit.blade.php
-│     │  │  ├─ index.blade.php
-│     │  │  ├─ show.blade.php
-│     │  │  └─ _table.blade.php
-│     │  ├─ profile
-│     │  │  ├─ edit.blade.php
-│     │  │  └─ index.blade.php
-│     │  ├─ settings
-│     │  │  └─ index.blade.php
-│     │  └─ users
-│     │     ├─ create.blade.php
-│     │     ├─ edit.blade.php
-│     │     ├─ index.blade.php
-│     │     └─ _table.blade.php
-│     ├─ layouts
-│     │  ├─ app.blade.php
-│     │  ├─ dashboard.blade.php
-│     │  ├─ guest.blade.php
-│     │  └─ website.blade.php
-│     └─ website
-│        ├─ about.blade.php
-│        ├─ index.blade.php
-│        └─ products
-│           ├─ index.blade.php
-│           └─ show.blade.php
-├─ routes
-│  ├─ console.php
-│  └─ web.php
-├─ storage
-│  ├─ app
-│  │  ├─ private
-│  │  └─ public
-│  │     ├─ products
-│  │     │  ├─ 6D5yi7UWWcq5kH0gwLPK6jHyJ5N19Rr7EPEX6Q0z.jpg
-│  │     │  ├─ 7ydXqp7jA4if0mmg8LSbJogbaY9DZDci055YHG3W.jpg
-│  │     │  ├─ 9ei1YdiVJ6mLPzXc7domAYGjNsc9r7fhhb6vMSLc.jpg
-│  │     │  ├─ brmXb7ukomEAnnfFwp8OSgUqYoolNcKvqOaNuCQm.jpg
-│  │     │  ├─ hYMy25kovjMSMDuuQxXqdDW1LeDGoX7GKyzB6OlE.jpg
-│  │     │  ├─ IIlUn7NHnbGfVZFPCJjasJ5PPzC9gAvGbQnuGn75.jpg
-│  │     │  ├─ iLeRPddQwNCUwM7jgsYKldD5kSVm7miMxA20WwYQ.jpg
-│  │     │  ├─ lV85MHd7j9SFg9Q3aCbPT8dExZd6uKeG38CWfZq9.jpg
-│  │     │  └─ zSo1HDBKN5ETowp4jx9FsMjSsZLyzybRhLqkmxTF.jpg
-│  │     └─ settings
-│  │        ├─ 1YbMcbjvpDiYBcYwPeHQuH6HxUteVe0kzCKeobJ4.jpg
-│  │        ├─ Tfc9a1BhhfsIqqVQyVkEcj5yy3wPE6HrNBUweZTB.jpg
-│  │        ├─ TNTAZpZxEC6CcCF05NbPgmh6Nbx7HVoOkveWuAjz.jpg
-│  │        └─ W06vMbGPC3RzUgQtXNwiml4Wi5cioQx1di9JXu9B.jpg
-│  ├─ framework
-│  │  ├─ cache
-│  │  │  └─ data
-│  │  ├─ sessions
-│  │  ├─ testing
-│  │  └─ views
-│  │     ├─ 023e816352e61e07413c746602b9c10b.php
-│  │     ├─ 069051a84525fbeb503ab574dacdccd0.php
-│  │     ├─ 0e34a4cb0a68029c664d5406a7f44348.php
-│  │     ├─ 10d0cbbe1d588ab2b28a00ffdd73e275.php
-│  │     ├─ 12757eac97c9277e17aee28b2ee449a6.php
-│  │     ├─ 13847e1793082a8fd158135dae1c283d.php
-│  │     ├─ 148cd1f2e5d549c485b8a78c7006d39b.php
-│  │     ├─ 174825e0abd5546a043c5796c82e7cc7.php
-│  │     ├─ 1bcf23dff072bdd0514fd0b37c8eda86.php
-│  │     ├─ 1e1fe1ce0b33fc17b42ef7044a2b8818.php
-│  │     ├─ 1f3435466c3561c1ffdec2909e6bf614.php
-│  │     ├─ 20734cfc1caafe2cb4bd37946d427fa3.php
-│  │     ├─ 22d41f06e43049964e2573432eaae52a.php
-│  │     ├─ 28bccf717fb5a1dabfd1b438a10d0e10.php
-│  │     ├─ 2bcb3f403af85e1ec4eeefb0745b623e.php
-│  │     ├─ 2df254ffc2cd952197dc66703d532d32.php
-│  │     ├─ 333d8fc8086377492f6a3a88f5cb1334.php
-│  │     ├─ 384c7fc835236a5f2fdaa169c4fd19bc.php
-│  │     ├─ 38ee142ff491394604245e6aa2596ada.php
-│  │     ├─ 3dbdc679a6fa0fc44961b808850ee06d.php
-│  │     ├─ 40743947e71d580bb89b6135e8a052fc.php
-│  │     ├─ 494d9c5138508250d74e4611e5207f62.php
-│  │     ├─ 4b59c89a8ce916225a59221c0f6848a1.php
-│  │     ├─ 4d4e9e223bbff658f5d4775778a61620.php
-│  │     ├─ 4d827c58e83fe8f53d93303ce7ef7625.php
-│  │     ├─ 55ba5c14fe2a57d2f4b44be304239182.php
-│  │     ├─ 58ce4e30b410744c9bdfa6c1b4a65be7.php
-│  │     ├─ 59159b598a4142a76a6eea7b234f3ba5.php
-│  │     ├─ 5b39cae8dc0324999b7f6e6df8bdfd28.php
-│  │     ├─ 5cd99f2f9932dd3974e558eef55c6226.php
-│  │     ├─ 5cedec36f1f09f5c5f61941674c8bc2d.php
-│  │     ├─ 5f591e60ff37ec52ace1f9541bc87754.php
-│  │     ├─ 63a1a003a446498243eb6fec14235a7b.php
-│  │     ├─ 6915dc014487db84b714d672dc517dd0.php
-│  │     ├─ 6fd00d22a9a2ec454325ff964731a2ad.php
-│  │     ├─ 70d89577dc6c0ba93703654f81242d12.php
-│  │     ├─ 74be31e8d38981416607483b39f2a98d.php
-│  │     ├─ 7a6c871b5ab1c273cd8100dcb5b9a529.php
-│  │     ├─ 84f4ca3b71b8bb82c3b6b57bb8d0939e.php
-│  │     ├─ 858f8ea47403a2c9b61af2c12574a9f8.php
-│  │     ├─ 871fe1cb408754b306e571df27d5c42b.php
-│  │     ├─ 8892e6822ad5b79889e31158d5a32184.php
-│  │     ├─ 8a117b073f6621251ab62a93da91af49.php
-│  │     ├─ 90d8f7cb8e942b9990897014c678a1ad.php
-│  │     ├─ 932240f7ddb436daad7fff546f428e7d.php
-│  │     ├─ 99a42acc6936ba77a95ff8d5186f632e.php
-│  │     ├─ 9a38cb940ee959836985ed33c954b8a6.php
-│  │     ├─ 9d60153211b77351f029dece1d614f2d.php
-│  │     ├─ 9e022f107eb80aea9ec19a458991a83a.php
-│  │     ├─ a0db362cd99bb675dfe03ebcac64688a.php
-│  │     ├─ a1287b3c0bad307d08fece1e356968f7.php
-│  │     ├─ a1c528731313a47332e7650583f4b190.php
-│  │     ├─ a4720f842d4623ed9ac80fb952113418.php
-│  │     ├─ b651811039b199d6ccd0aa08ac79df26.php
-│  │     ├─ bae9845c9047533977542a8fd4676b54.php
-│  │     ├─ bdfe16f2e54e1d3a3a52c2fd16f20740.php
-│  │     ├─ c53fac84670c555e1eb55c0ae1e8a5f5.php
-│  │     ├─ c819508fb68b2497cc7e0fa85a401da5.php
-│  │     ├─ c9b8d58f1e73663ef49c1196e78843b4.php
-│  │     ├─ d3f42af7a9ef9da3bebf422083f1bb0c.php
-│  │     ├─ d641cea9894701f6de34db037fd4aa6a.php
-│  │     ├─ d8507b28ce4539a8fdcf223b13836fe2.php
-│  │     ├─ e8d19a443cd27acb884c80534e0d1059.php
-│  │     ├─ e8fecdaa4f31cbe9ec0f209a0303a970.php
-│  │     ├─ f677e843e28dc776e7c16a68dfcacfab.php
-│  │     ├─ f68c8951289cd6db4daa35fd68d958c5.php
-│  │     ├─ f84be7e243cf96392529125351f2c564.php
-│  │     ├─ fc5c882916eb1755b16066d85173b3d4.php
-│  │     └─ fdd93a3e70437a4ba5345c4ef139c57e.php
-│  └─ logs
-├─ test
-│  └─ Strukture.html
-├─ tests
-│  ├─ Feature
-│  │  └─ ExampleTest.php
-│  ├─ TestCase.php
-│  └─ Unit
-│     └─ ExampleTest.php
-└─ vite.config.js
 
+```bash
+# 3. Buat tabel & akun awal, build tampilan, lalu jalankan
+php artisan migrate --seed
+npm run build
+php artisan serve
 ```
-```
-Xuping-Afa
-├─ .editorconfig
-├─ .npmrc
-├─ app
-│  ├─ Http
-│  │  ├─ Controllers
-│  │  │  ├─ AuthController.php
-│  │  │  ├─ BannerController.php
-│  │  │  ├─ CategoryController.php
-│  │  │  ├─ Controller.php
-│  │  │  ├─ DashboardController.php
-│  │  │  ├─ ProductController.php
-│  │  │  ├─ ProfileController.php
-│  │  │  ├─ SettingController.php
-│  │  │  ├─ UserController.php
-│  │  │  └─ WebsiteController.php
-│  │  └─ Middleware
-│  │     └─ PreventBackHistory.php
-│  ├─ Models
-│  │  ├─ Banner.php
-│  │  ├─ Category.php
-│  │  ├─ Product.php
-│  │  ├─ ProductImage.php
-│  │  ├─ Setting.php
-│  │  └─ User.php
-│  └─ Providers
-│     └─ AppServiceProvider.php
-├─ artisan
-├─ bootstrap
-│  ├─ app.php
-│  ├─ cache
-│  │  ├─ packages.php
-│  │  └─ services.php
-│  └─ providers.php
-├─ composer.json
-├─ composer.lock
-├─ config
-│  ├─ app.php
-│  ├─ auth.php
-│  ├─ cache.php
-│  ├─ database.php
-│  ├─ filesystems.php
-│  ├─ logging.php
-│  ├─ mail.php
-│  ├─ permission.php
-│  ├─ queue.php
-│  ├─ services.php
-│  └─ session.php
-├─ database
-│  ├─ factories
-│  │  └─ UserFactory.php
-│  ├─ migrations
-│  │  ├─ 0001_01_01_000000_create_users_table.php
-│  │  ├─ 0001_01_01_000001_create_cache_table.php
-│  │  ├─ 0001_01_01_000002_create_jobs_table.php
-│  │  ├─ 2026_08_01_163015_create_permission_tables.php
-│  │  ├─ 2026_08_01_163926_create_banners_table.php
-│  │  ├─ 2026_08_01_164238_create_categories_table.php
-│  │  ├─ 2026_08_01_164325_create_products_table.php
-│  │  ├─ 2026_08_01_164514_create_product_images_table.php
-│  │  ├─ 2026_08_10_044315_add_avatar_to_users_table.php
-│  │  └─ 2026_08_10_063930_create_settings_table.php
-│  └─ seeders
-│     ├─ DatabaseSeeder.php
-│     └─ RolePermissionSeeder.php
-├─ package-lock.json
-├─ package.json
-├─ phpunit.xml
-├─ public
-│  ├─ .htaccess
-│  ├─ favicon.ico
-│  ├─ index.php
-│  └─ robots.txt
-├─ README.md
-├─ resources
-│  ├─ css
-│  │  └─ app.css
-│  ├─ js
-│  │  └─ app.js
-│  └─ views
-│     ├─ auth
-│     │  └─ login.blade.php
-│     ├─ components
-│     │  ├─ alert.blade.php
-│     │  ├─ dashboard
-│     │  │  ├─ navbar.blade.php
-│     │  │  └─ sidebar.blade.php
-│     │  └─ website
-│     │     ├─ footer.blade.php
-│     │     └─ navbar.blade.php
-│     ├─ dashboard
-│     │  ├─ categories
-│     │  │  ├─ index.blade.php
-│     │  │  └─ _table.blade.php
-│     │  ├─ index.blade.php
-│     │  ├─ products
-│     │  │  ├─ create.blade.php
-│     │  │  ├─ edit.blade.php
-│     │  │  ├─ index.blade.php
-│     │  │  ├─ show.blade.php
-│     │  │  └─ _table.blade.php
-│     │  ├─ profile
-│     │  │  ├─ edit.blade.php
-│     │  │  └─ index.blade.php
-│     │  ├─ settings
-│     │  │  └─ index.blade.php
-│     │  └─ users
-│     │     ├─ create.blade.php
-│     │     ├─ edit.blade.php
-│     │     ├─ index.blade.php
-│     │     └─ _table.blade.php
-│     ├─ layouts
-│     │  ├─ app.blade.php
-│     │  ├─ dashboard.blade.php
-│     │  ├─ guest.blade.php
-│     │  └─ website.blade.php
-│     └─ website
-│        ├─ about.blade.php
-│        ├─ index.blade.php
-│        └─ products
-│           ├─ index.blade.php
-│           └─ show.blade.php
-├─ routes
-│  ├─ console.php
-│  └─ web.php
-├─ storage
-│  ├─ app
-│  │  ├─ private
-│  │  └─ public
-│  │     ├─ products
-│  │     │  ├─ 6D5yi7UWWcq5kH0gwLPK6jHyJ5N19Rr7EPEX6Q0z.jpg
-│  │     │  ├─ 7ydXqp7jA4if0mmg8LSbJogbaY9DZDci055YHG3W.jpg
-│  │     │  ├─ 9ei1YdiVJ6mLPzXc7domAYGjNsc9r7fhhb6vMSLc.jpg
-│  │     │  ├─ brmXb7ukomEAnnfFwp8OSgUqYoolNcKvqOaNuCQm.jpg
-│  │     │  ├─ hYMy25kovjMSMDuuQxXqdDW1LeDGoX7GKyzB6OlE.jpg
-│  │     │  ├─ IIlUn7NHnbGfVZFPCJjasJ5PPzC9gAvGbQnuGn75.jpg
-│  │     │  ├─ iLeRPddQwNCUwM7jgsYKldD5kSVm7miMxA20WwYQ.jpg
-│  │     │  ├─ lV85MHd7j9SFg9Q3aCbPT8dExZd6uKeG38CWfZq9.jpg
-│  │     │  └─ zSo1HDBKN5ETowp4jx9FsMjSsZLyzybRhLqkmxTF.jpg
-│  │     └─ settings
-│  │        ├─ 1YbMcbjvpDiYBcYwPeHQuH6HxUteVe0kzCKeobJ4.jpg
-│  │        ├─ Tfc9a1BhhfsIqqVQyVkEcj5yy3wPE6HrNBUweZTB.jpg
-│  │        ├─ TNTAZpZxEC6CcCF05NbPgmh6Nbx7HVoOkveWuAjz.jpg
-│  │        └─ W06vMbGPC3RzUgQtXNwiml4Wi5cioQx1di9JXu9B.jpg
-│  ├─ framework
-│  │  ├─ cache
-│  │  │  └─ data
-│  │  ├─ sessions
-│  │  ├─ testing
-│  │  └─ views
-│  │     ├─ 023e816352e61e07413c746602b9c10b.php
-│  │     ├─ 069051a84525fbeb503ab574dacdccd0.php
-│  │     ├─ 0e34a4cb0a68029c664d5406a7f44348.php
-│  │     ├─ 10d0cbbe1d588ab2b28a00ffdd73e275.php
-│  │     ├─ 12757eac97c9277e17aee28b2ee449a6.php
-│  │     ├─ 13847e1793082a8fd158135dae1c283d.php
-│  │     ├─ 148cd1f2e5d549c485b8a78c7006d39b.php
-│  │     ├─ 174825e0abd5546a043c5796c82e7cc7.php
-│  │     ├─ 1bcf23dff072bdd0514fd0b37c8eda86.php
-│  │     ├─ 1e1fe1ce0b33fc17b42ef7044a2b8818.php
-│  │     ├─ 1f3435466c3561c1ffdec2909e6bf614.php
-│  │     ├─ 20734cfc1caafe2cb4bd37946d427fa3.php
-│  │     ├─ 22d41f06e43049964e2573432eaae52a.php
-│  │     ├─ 28bccf717fb5a1dabfd1b438a10d0e10.php
-│  │     ├─ 2bcb3f403af85e1ec4eeefb0745b623e.php
-│  │     ├─ 2df254ffc2cd952197dc66703d532d32.php
-│  │     ├─ 333d8fc8086377492f6a3a88f5cb1334.php
-│  │     ├─ 384c7fc835236a5f2fdaa169c4fd19bc.php
-│  │     ├─ 38ee142ff491394604245e6aa2596ada.php
-│  │     ├─ 3dbdc679a6fa0fc44961b808850ee06d.php
-│  │     ├─ 40743947e71d580bb89b6135e8a052fc.php
-│  │     ├─ 494d9c5138508250d74e4611e5207f62.php
-│  │     ├─ 4b59c89a8ce916225a59221c0f6848a1.php
-│  │     ├─ 4d4e9e223bbff658f5d4775778a61620.php
-│  │     ├─ 4d827c58e83fe8f53d93303ce7ef7625.php
-│  │     ├─ 55ba5c14fe2a57d2f4b44be304239182.php
-│  │     ├─ 58ce4e30b410744c9bdfa6c1b4a65be7.php
-│  │     ├─ 59159b598a4142a76a6eea7b234f3ba5.php
-│  │     ├─ 5b39cae8dc0324999b7f6e6df8bdfd28.php
-│  │     ├─ 5cd99f2f9932dd3974e558eef55c6226.php
-│  │     ├─ 5cedec36f1f09f5c5f61941674c8bc2d.php
-│  │     ├─ 5f591e60ff37ec52ace1f9541bc87754.php
-│  │     ├─ 63a1a003a446498243eb6fec14235a7b.php
-│  │     ├─ 6915dc014487db84b714d672dc517dd0.php
-│  │     ├─ 6fd00d22a9a2ec454325ff964731a2ad.php
-│  │     ├─ 70d89577dc6c0ba93703654f81242d12.php
-│  │     ├─ 74be31e8d38981416607483b39f2a98d.php
-│  │     ├─ 7a6c871b5ab1c273cd8100dcb5b9a529.php
-│  │     ├─ 84f4ca3b71b8bb82c3b6b57bb8d0939e.php
-│  │     ├─ 858f8ea47403a2c9b61af2c12574a9f8.php
-│  │     ├─ 871fe1cb408754b306e571df27d5c42b.php
-│  │     ├─ 8892e6822ad5b79889e31158d5a32184.php
-│  │     ├─ 8a117b073f6621251ab62a93da91af49.php
-│  │     ├─ 90d8f7cb8e942b9990897014c678a1ad.php
-│  │     ├─ 932240f7ddb436daad7fff546f428e7d.php
-│  │     ├─ 99a42acc6936ba77a95ff8d5186f632e.php
-│  │     ├─ 9a38cb940ee959836985ed33c954b8a6.php
-│  │     ├─ 9d60153211b77351f029dece1d614f2d.php
-│  │     ├─ 9e022f107eb80aea9ec19a458991a83a.php
-│  │     ├─ a0db362cd99bb675dfe03ebcac64688a.php
-│  │     ├─ a1287b3c0bad307d08fece1e356968f7.php
-│  │     ├─ a1c528731313a47332e7650583f4b190.php
-│  │     ├─ a4720f842d4623ed9ac80fb952113418.php
-│  │     ├─ b651811039b199d6ccd0aa08ac79df26.php
-│  │     ├─ bae9845c9047533977542a8fd4676b54.php
-│  │     ├─ bdfe16f2e54e1d3a3a52c2fd16f20740.php
-│  │     ├─ c53fac84670c555e1eb55c0ae1e8a5f5.php
-│  │     ├─ c819508fb68b2497cc7e0fa85a401da5.php
-│  │     ├─ c9b8d58f1e73663ef49c1196e78843b4.php
-│  │     ├─ d3f42af7a9ef9da3bebf422083f1bb0c.php
-│  │     ├─ d641cea9894701f6de34db037fd4aa6a.php
-│  │     ├─ d8507b28ce4539a8fdcf223b13836fe2.php
-│  │     ├─ e8d19a443cd27acb884c80534e0d1059.php
-│  │     ├─ e8fecdaa4f31cbe9ec0f209a0303a970.php
-│  │     ├─ f677e843e28dc776e7c16a68dfcacfab.php
-│  │     ├─ f68c8951289cd6db4daa35fd68d958c5.php
-│  │     ├─ f84be7e243cf96392529125351f2c564.php
-│  │     ├─ fc5c882916eb1755b16066d85173b3d4.php
-│  │     └─ fdd93a3e70437a4ba5345c4ef139c57e.php
-│  └─ logs
-├─ test
-│  └─ Strukture.html
-├─ tests
-│  ├─ Feature
-│  │  └─ ExampleTest.php
-│  ├─ TestCase.php
-│  └─ Unit
-│     └─ ExampleTest.php
-└─ vite.config.js
 
+Buka **http://127.0.0.1:8000**, dan panel admin di **http://127.0.0.1:8000/login**.
+
+> ⚠️ Seeder membuat akun bawaan dengan password sederhana (lihat `database/seeders/RolePermissionSeeder.php`). Ganti password-nya sebelum data dibawa ke server.
+
+Foto upload disimpan langsung di `public/storage`, jadi `php artisan storage:link` **tidak diperlukan**.
+
+---
+
+## 🧪 Pengujian
+
+```bash
+php vendor/bin/phpunit
 ```
+
+Test memakai SQLite di memori, jadi tidak menyentuh database lokal Anda. Cakupannya meliputi halaman publik, alur pesanan WhatsApp, CRUD admin, edit stok, hak akses, unggah foto WebP, ganti password, dan sitemap.
+
+---
+
+## 🌍 Deploy
+
+Website berjalan di **InfinityFree**, yang tidak menyediakan SSH, Composer, maupun Node. Semua build dilakukan di lokal lalu diunggah lewat FTP.
+
+Panduan lengkap langkah demi langkah ada di **[DEPLOY-INFINITYFREE.md](DEPLOY-INFINITYFREE.md)**.
+
+Hal yang wajib diingat:
+- Gunakan FileZilla dengan transfer type **Binary**.
+- Jangan pernah mengedit kode langsung di File Manager hosting. Ubah di lokal, commit, lalu unggah.
+- Pastikan `https://xuping-afa.my.id/.env` tetap **tidak bisa diakses** setelah setiap deploy.
+
+---
+
+## 📁 Struktur Singkat
+
+```text
+app/
+├── Http/Controllers/     # Website, produk, banner, testimoni, pengaturan, pengguna
+├── Models/               # Product, Category, Banner, Testimonial, Setting, User
+└── Support/ImageUploader.php   # Perkecil & konversi foto ke WebP
+resources/
+├── css/app.css           # Tema warna gading-emas & komponen UI
+├── js/app.js             # Daftar Pesanan, filter live, galeri, form foto
+└── views/
+    ├── website/          # Halaman publik
+    ├── dashboard/        # Panel admin
+    └── components/       # Navbar, kartu produk, laci pesanan, ikon
+tests/Feature/            # Test storefront, dashboard, dan password
+```
+
+---
+
+<div align="center">
+
+Dibuat dengan 💛 oleh **[@kurniawan-Donn](https://github.com/kurniawan-Donn)** untuk **Afa Xuping Accessories**
+
+<sub>Harga dan ketersediaan produk di website dapat berubah sewaktu-waktu.</sub>
+
+</div>
