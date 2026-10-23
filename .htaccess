@@ -1,10 +1,13 @@
 RewriteEngine On
 
-# Izinkan akses langsung ke file statis yang ada (favicon, gambar, dll)
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^ - [L]
+# Kode Laravel berada di luar folder public; tolak akses langsung ke file & folder sensitif
+RewriteRule (^|/)\.(?!well-known/) - [F,L]
+RewriteRule ^(app|bootstrap|config|database|resources|routes|tests|vendor|node_modules)(/|$) - [F,L,NC]
+RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json|artisan|phpunit\.xml|vite\.config\.js|README\.md)$ - [F,L,NC]
 
-# Redirect semua request lain ke folder public
-RewriteRule (.*) /public/$1 [L]
+# Semua request lain diarahkan ke folder public (termasuk /storage/... untuk gambar upload)
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ /public/$1 [L]
 
-php_value display_errors On
+# Jangan tampilkan detail error PHP ke pengunjung
+php_flag display_errors Off

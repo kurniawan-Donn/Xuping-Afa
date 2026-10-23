@@ -1,101 +1,242 @@
 @extends('layouts.website')
-@section('title', $product->name . ' - Afa Xuping')
 
-{{-- LETAKKAN PUSH META DI SINI (Agar terbaca oleh layout/app.blade.php) --}}
+@php
+    $siteName = $settings['site_name'] ?? 'Afa Xuping Accessories';
+    $images = $product->images;
+    $imageUrls = $images->isNotEmpty() ? $images->map(fn ($i) => asset('storage/' . $i->image_path))->values() : collect([$product->image_url]);
+    $sizes = $product->sizes ?? [];
+    $colors = $product->colors ?? [];
+    $price = 'Rp ' . number_format($product->price, 0, ',', '.');
+@endphp
+
+@section('title', $product->name . ' — ' . $siteName)
+@section('meta_description', $product->short_description ?: "{$product->name} — {$price}. Pesan mudah via WhatsApp di {$siteName}.")
+@section('meta_image', $imageUrls->first())
+@section('og_type', 'product')
+
 @push('meta')
-    <meta property="og:title" content="{{ $product->name }}">
-    <meta property="og:description" content="Harga: Rp {{ number_format($product->price, 0, ',', '.') }}">
-    @php
-        $ogImage = $product->images->where('is_primary', 1)->first() ?? $product->images->first();
-    @endphp
-    @if($ogImage)
-        <meta property="og:image" content="{{ asset('storage/' . $ogImage->image_path) }}">
-    @endif
-    <meta property="og:url" content="{{ url()->current() }}">
+<meta property="product:price:amount" content="{{ (int) $product->price }}">
+<meta property="product:price:currency" content="IDR">
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'Product',
+    'name' => $product->name,
+    'image' => $imageUrls->all(),
+    'description' => $product->short_description ?: $product->name,
+    'sku' => 'AFA-' . $product->id,
+    'category' => $product->category?->name,
+    'brand' => ['@type' => 'Brand', 'name' => 'Xuping'],
+    'offers' => [
+        '@type' => 'Offer',
+        'url' => url()->current(),
+        'priceCurrency' => 'IDR',
+        'price' => (int) $product->price,
+        'availability' => $product->in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        'seller' => ['@type' => 'Organization', 'name' => $siteName],
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
 @endpush
 
 @section('content')
-<div class="bg-white py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Tombol Kembali -->
-        <div class="mb-8">
-            <a href="{{ route('website.products.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-indigo-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                Kembali ke Katalog
-            </a>
-        </div>
+<div class="container-page pb-20 pt-6 sm:pb-0 lg:pt-10">
+    <nav class="flex flex-wrap items-center gap-1.5 text-xs text-stone-500" aria-label="Breadcrumb">
+        <a href="{{ route('website.index') }}" class="hover:text-ink">Beranda</a> <span>/</span>
+        <a href="{{ route('website.products.index') }}" class="hover:text-ink">Katalog</a>
+        @if ($product->category)
+            <span>/</span> <a href="{{ route('website.products.index', ['category' => $product->category->slug]) }}" class="hover:text-ink">{{ $product->category->name }}</a>
+        @endif
+    </nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <!-- Bagian Gambar Produk -->
-            <div class="space-y-4">
-                <div class="aspect-square bg-gray-50 rounded-3xl overflow-hidden border border-gray-100 shadow-sm relative">
-                    @php
-                        $primaryImage = $product->images->where('is_primary', 1)->first() ?? $product->images->first();
-                    @endphp
-                    @if($primaryImage)
-                        <img src="{{ Storage::url($primaryImage->image_path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
-                    @else
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode($product->name) }}&background=e2e8f0&color=64748b" alt="{{ $product->name }}" class="w-full h-full object-cover">
+    <div class="mt-5 grid gap-8 lg:mt-8 lg:grid-cols-2 lg:gap-14">
+        {{-- ============ GALERI ============ --}}
+        <div x-data="gallery({{ $imageUrls->count() }})" class="lg:sticky lg:top-28 lg:self-start">
+            <div class="relative -mx-4 overflow-hidden bg-cream sm:mx-0 sm:rounded-3xl">
+                <div x-ref="track" @scroll.debounce.50ms="onScroll()" class="no-scrollbar flex aspect-square snap-x snap-mandatory overflow-x-auto sm:aspect-[4/5]">
+                    @foreach ($imageUrls as $idx => $url)
+                        <button type="button" @click="lightbox = true" class="h-full w-full shrink-0 snap-center cursor-zoom-in" aria-label="Perbesar foto {{ $idx + 1 }}">
+                            <img src="{{ $url }}" alt="{{ $product->name }} — foto {{ $idx + 1 }}" class="h-full w-full object-cover" @if ($idx) loading="lazy" @else fetchpriority="high" @endif>
+                        </button>
+                    @endforeach
+                </div>
+
+                <div class="absolute left-4 top-4 flex flex-col items-start gap-1.5">
+                    @if (! $product->in_stock)
+                        <span class="badge bg-white text-stone-700 shadow-sm">Stok Habis</span>
+                    @elseif ($product->has_discount)
+                        <span class="badge bg-red-600 text-white">Hemat {{ $product->discount_percent }}%</span>
+                    @endif
+                    @if ($product->badge_label)
+                        <span class="badge bg-ink text-gold-200">{{ $product->badge_label }}</span>
                     @endif
                 </div>
 
-                <!-- Thumbnail Gambar Lainnya -->
-                @if($product->images->count() > 1)
-                <div class="grid grid-cols-4 gap-4">
-                    @foreach($product->images as $image)
-                    <div class="aspect-square rounded-xl overflow-hidden border border-gray-200 bg-white cursor-pointer hover:border-indigo-600 transition-all">
-                        <img src="{{ Storage::url($image->image_path) }}" class="w-full h-full object-cover">
+                @if ($imageUrls->count() > 1)
+                    <button type="button" @click="go(active - 1)" class="absolute left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow-soft hover:bg-white sm:grid" aria-label="Foto sebelumnya"><x-icon name="chevron-left" class="h-4 w-4" /></button>
+                    <button type="button" @click="go(active + 1)" class="absolute right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-white/90 shadow-soft hover:bg-white sm:grid" aria-label="Foto berikutnya"><x-icon name="chevron-right" class="h-4 w-4" /></button>
+                    <div class="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-ink/30 px-2 py-1.5 backdrop-blur sm:hidden">
+                        @foreach ($imageUrls as $idx => $url)
+                            <span :class="active === {{ $idx }} ? 'w-5 bg-white' : 'w-1.5 bg-white/60'" class="h-1.5 rounded-full transition-all"></span>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
                 @endif
             </div>
 
-            <!-- Bagian Detail Informasi Produk -->
-            <div class="flex flex-col justify-between">
-                <div>
-                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600 mb-4 tracking-wide uppercase">
-                        {{ $product->category->name ?? 'Aksesoris' }}
-                    </span>
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">{{ $product->name }}</h1>
-                    <p class="text-2xl font-bold text-indigo-600 mb-6">
-                        Rp {{ number_format($product->price, 0, ',', '.') }}
-                    </p>
-                    
-                    <div class="prose prose-sm text-gray-600 mb-8 leading-relaxed">
-                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-2">Deskripsi</h3>
-                        <p>{{ $product->description ?? 'Tidak ada deskripsi tersedia untuk produk ini.' }}</p>
+            @if ($imageUrls->count() > 1)
+                <div class="no-scrollbar mt-3 hidden gap-3 overflow-x-auto sm:flex">
+                    @foreach ($imageUrls as $idx => $url)
+                        <button type="button" @click="go({{ $idx }})" :class="active === {{ $idx }} ? 'ring-2 ring-ink ring-offset-2 ring-offset-ivory' : 'opacity-70 hover:opacity-100'"
+                            class="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-cream transition" aria-label="Lihat foto {{ $idx + 1 }}">
+                            <img src="{{ $url }}" alt="" class="h-full w-full object-cover" loading="lazy">
+                        </button>
+                    @endforeach
+                </div>
+            @endif
+
+            {{-- Lightbox --}}
+            <template x-teleport="body">
+                <div x-cloak x-show="lightbox" x-transition.opacity @keydown.escape.window="lightbox = false"
+                    @keydown.arrow-right.window="lightbox && go(active + 1)" @keydown.arrow-left.window="lightbox && go(active - 1)"
+                    class="fixed inset-0 z-[70] flex items-center justify-center bg-ink/95 p-4" role="dialog" aria-modal="true">
+                    <button type="button" @click="lightbox = false" class="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Tutup"><x-icon name="x" /></button>
+                    @foreach ($imageUrls as $idx => $url)
+                        <img x-show="active === {{ $idx }}" src="{{ $url }}" alt="{{ $product->name }}" class="max-h-full max-w-full rounded-xl object-contain" loading="lazy">
+                    @endforeach
+                    @if ($imageUrls->count() > 1)
+                        <button type="button" @click="go(active - 1)" class="absolute left-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Sebelumnya"><x-icon name="chevron-left" /></button>
+                        <button type="button" @click="go(active + 1)" class="absolute right-4 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Berikutnya"><x-icon name="chevron-right" /></button>
+                        <p class="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm text-white/70"><span x-text="active + 1"></span> / {{ $imageUrls->count() }}</p>
+                    @endif
+                </div>
+            </template>
+        </div>
+
+        {{-- ============ INFO & PESAN ============ --}}
+        <div x-data="productOrder(@js($product->cartPayload()), @js($sizes), @js($colors))">
+            @if ($product->category)
+                <a href="{{ route('website.products.index', ['category' => $product->category->slug]) }}" class="eyebrow hover:text-gold-800">{{ $product->category->name }}</a>
+            @endif
+            <h1 class="heading-display mt-2 text-4xl leading-tight lg:text-5xl">{{ $product->name }}</h1>
+
+            <div class="mt-4 flex flex-wrap items-baseline gap-3">
+                <span class="text-3xl font-semibold tracking-tight">{{ $price }}</span>
+                @if ($product->has_discount)
+                    <span class="text-lg text-stone-400 line-through">Rp {{ number_format($product->compare_price, 0, ',', '.') }}</span>
+                    <span class="badge badge-red">-{{ $product->discount_percent }}%</span>
+                @endif
+            </div>
+
+            <p class="mt-3 flex items-center gap-2 text-sm font-medium">
+                @if ($product->in_stock)
+                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span><span class="text-emerald-700">Tersedia</span>
+                @else
+                    <span class="h-2 w-2 rounded-full bg-stone-400"></span><span class="text-stone-500">Stok sedang habis</span>
+                @endif
+            </p>
+
+            <div class="mt-8 space-y-6 border-t border-stone-200 pt-6">
+                @if ($colors)
+                    <fieldset>
+                        <legend class="label flex items-center gap-2">Warna <span class="font-normal text-stone-500" x-text="color ? '— ' + color : ''"></span></legend>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($colors as $c)
+                                <button type="button" @click="color = @js($c)" :class="color === @js($c) && 'option-active'" :aria-pressed="color === @js($c)" class="option">
+                                    <span class="h-4 w-4 rounded-full ring-1 ring-black/10" style="background: {{ \App\Models\Product::COLORS[$c] ?? '#ddd' }}"></span>
+                                    {{ $c }}
+                                </button>
+                            @endforeach
+                        </div>
+                        <p x-cloak x-show="attempted && !color" class="error">Silakan pilih warna.</p>
+                    </fieldset>
+                @endif
+
+                @if ($sizes)
+                    <fieldset>
+                        <legend class="label">Ukuran</legend>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($sizes as $s)
+                                <button type="button" @click="size = @js($s)" :class="size === @js($s) && 'option-active'" :aria-pressed="size === @js($s)" class="option">{{ $s }}</button>
+                            @endforeach
+                        </div>
+                        <p x-cloak x-show="attempted && !size" class="error">Silakan pilih ukuran.</p>
+                        <p class="hint">Bingung ukuran? Tanyakan ke admin, kami bantu pilihkan.</p>
+                    </fieldset>
+                @endif
+
+                @if ($product->in_stock)
+                    <div>
+                        <p class="label">Jumlah</p>
+                        <div class="inline-flex items-center rounded-full border border-stone-300 bg-white">
+                            <button type="button" @click="qty = Math.max(1, qty - 1)" class="grid h-11 w-11 place-items-center text-stone-500 hover:text-ink" aria-label="Kurangi"><x-icon name="minus" class="h-4 w-4" /></button>
+                            <input type="number" x-model.number="qty" min="1" max="99" class="w-12 border-0 bg-transparent p-0 text-center font-semibold focus:ring-0" aria-label="Jumlah">
+                            <button type="button" @click="qty = Math.min(99, qty + 1)" class="grid h-11 w-11 place-items-center text-stone-500 hover:text-ink" aria-label="Tambah"><x-icon name="plus" class="h-4 w-4" /></button>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Tombol aksi --}}
+            <div class="fixed inset-x-0 bottom-16 z-20 border-t border-stone-200 bg-white/95 p-3 backdrop-blur-lg sm:static sm:mt-8 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+                @if ($product->in_stock)
+                    <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                        <button type="button" @click="addToCart()" class="btn btn-outline btn-lg px-3">
+                            <x-icon name="bag" class="h-5 w-5" /> <span>Tambah<span class="hidden sm:inline"> ke Pesanan</span></span>
+                        </button>
+                        <button type="button" @click="orderNow()" class="btn btn-wa btn-lg px-3">
+                            <x-icon name="whatsapp" class="h-5 w-5" /> Pesan<span class="hidden sm:inline"> Sekarang</span>
+                        </button>
+                    </div>
+                @else
+                    <button type="button" @click="askStock()" class="btn btn-dark btn-lg w-full">
+                        <x-icon name="whatsapp" class="h-5 w-5" /> Tanya Ketersediaan
+                    </button>
+                @endif
+            </div>
+
+            <ul class="mt-8 grid grid-cols-3 gap-2 text-center text-[11px] text-stone-600 sm:text-xs">
+                <li class="rounded-2xl bg-white p-3"><x-icon name="shield" class="mx-auto h-5 w-5 text-gold-600" /><span class="mt-1.5 block">Dicek sebelum kirim</span></li>
+                <li class="rounded-2xl bg-white p-3"><x-icon name="chat" class="mx-auto h-5 w-5 text-gold-600" /><span class="mt-1.5 block">Konsultasi gratis</span></li>
+                <li class="rounded-2xl bg-white p-3"><x-icon name="bag" class="mx-auto h-5 w-5 text-gold-600" /><span class="mt-1.5 block">Tanpa daftar akun</span></li>
+            </ul>
+
+            @if ($product->description)
+                <div x-data="{ open: true }" class="mt-8 border-t border-stone-200">
+                    <button type="button" @click="open = !open" class="flex w-full items-center justify-between py-5 text-left font-semibold">
+                        Deskripsi Produk <x-icon name="chevron-down" class="h-4 w-4 transition" x-bind:class="open && 'rotate-180'" />
+                    </button>
+                    <div x-show="open" x-collapse class="prose-afa pb-6 text-sm">
+                        {!! nl2br(e($product->description)) !!}
                     </div>
                 </div>
+            @endif
 
-                @php
-                    $whatsappNumber = '6282133237136'; 
-                    
-                    $productUrl = request()->url();
-
-                    $whatsappMessage = "Halo Kak, saya tertarik untuk memesan produk ini:\n\n" .
-                       "*{$product->name}*\n" .
-                       "Harga: Rp " . number_format($product->price, 0, ',', '.') . "\n\n" .
-                       "Link Produk: {$productUrl}\n\n" .
-                       "Apakah stoknya masih tersedia?";
-                       
-                    $whatsappUrl = "https://wa.me/{$whatsappNumber}?text=" . urlencode($whatsappMessage);
-                @endphp
-
-               <!-- Tombol Pesan via WhatsApp Dinamis -->
-                <div class="border-t border-gray-100 pt-6">
-                    <a href="{{ $whatsappUrl }}" target="_blank" class="w-full inline-flex justify-center items-center gap-2 px-8 py-4 border border-transparent text-base font-bold rounded-2xl text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 transition-all">
-                      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
-                    </svg>
-                        Pesan via WhatsApp
-                    </a>
-                    <p class="text-xs text-center text-gray-400 mt-3">
-                        💡 Detail produk dan foto akan otomatis terlampir saat Anda mengirim pesan.
-                    </p>
-                </div>
+            <div x-data="{ open: false }" class="border-y border-stone-200">
+                <button type="button" @click="open = !open" class="flex w-full items-center justify-between py-5 text-left font-semibold">
+                    Cara Pemesanan <x-icon name="chevron-down" class="h-4 w-4 transition" x-bind:class="open && 'rotate-180'" />
+                </button>
+                <ol x-show="open" x-collapse class="list-decimal space-y-2 pb-6 pl-5 text-sm text-stone-600">
+                    <li>Pilih warna, ukuran, dan jumlah.</li>
+                    <li>Tekan <b>Pesan Sekarang</b> untuk langsung chat, atau <b>Tambah ke Pesanan</b> untuk memesan beberapa produk sekaligus.</li>
+                    <li>Admin akan mengonfirmasi stok, ongkos kirim, dan cara pembayaran di WhatsApp.</li>
+                </ol>
             </div>
         </div>
     </div>
+
+    {{-- Produk terkait --}}
+    @if ($related->isNotEmpty())
+        <section class="mt-20">
+            <div class="flex items-end justify-between">
+                <h2 class="heading-display text-3xl lg:text-4xl">Mungkin Anda juga suka</h2>
+                <a href="{{ route('website.products.index', ['category' => $product->category?->slug]) }}" class="hidden items-center gap-1.5 text-sm font-semibold hover:text-gold-700 sm:flex">Lihat semua <x-icon name="arrow-right" class="h-4 w-4" /></a>
+            </div>
+            <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 lg:gap-x-6">
+                @foreach ($related as $item)
+                    <x-website.product-card :product="$item" />
+                @endforeach
+            </div>
+        </section>
+    @endif
 </div>
 @endsection

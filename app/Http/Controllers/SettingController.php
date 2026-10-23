@@ -3,106 +3,84 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Support\ImageUploader;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
+    private const TEXT_KEYS = [
+        'site_name',
+        'hero_title',
+        'hero_subtitle',
+        'about_title',
+        'about_content',
+        'whatsapp_number',
+        'whatsapp_greeting',
+        'contact_phone',
+        'contact_email',
+        'contact_address',
+        'opening_hours',
+        'maps_embed_url',
+        'instagram_url',
+        'tiktok_url',
+        'facebook_url',
+        'shopee_url',
+        'meta_description',
+        'footer_text',
+    ];
+
+    private const IMAGE_KEYS = [
+        'logo' => 600,
+        'hero_image' => 1920,
+        'about_image' => 1400,
+        'og_image' => 1200,
+    ];
+
     public function index()
     {
         $settings = Setting::pluck('value', 'key')->toArray();
+
         return view('dashboard.settings.index', compact('settings'));
     }
 
     public function update(Request $request)
     {
-        $keys = [
-            'hero_title',
-            'hero_subtitle',
-            'about_title',
-            'about_content',
-            'contact_phone',
-            'contact_email',
-            'contact_address',
-            'footer_text',
-        ];
+        $request->validate([
+            'whatsapp_number' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s]+$/'],
+            'contact_email' => 'nullable|email|max:255',
+            'maps_embed_url' => 'nullable|url|max:1000',
+            'instagram_url' => 'nullable|url|max:255',
+            'tiktok_url' => 'nullable|url|max:255',
+            'facebook_url' => 'nullable|url|max:255',
+            'shopee_url' => 'nullable|url|max:255',
+            'meta_description' => 'nullable|string|max:300',
+        ] + array_map(fn () => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', self::IMAGE_KEYS), [
+            'whatsapp_number.regex' => 'Nomor WhatsApp hanya boleh berisi angka.',
+        ]);
 
-        foreach ($keys as $key) {
+        foreach (self::TEXT_KEYS as $key) {
             if ($request->has($key)) {
-                Setting::updateOrCreate(
-                    ['key' => $key],
-                    ['value' => $request->input($key)]
-                );
+                Setting::updateOrCreate(['key' => $key], ['value' => $request->input($key)]);
             }
         }
 
-        // Hero Image
-        if ($request->hasFile('hero_image')) {
-            $file = $request->file('hero_image');
-
-            // Pastikan upload berhasil
-            if ($file->isValid()) {
-                $heroImage = Setting::where('key', 'hero_image')->first();
-
-                // Hapus gambar lama
-                if ($heroImage && $heroImage->value) {
-                    Storage::disk('public')->delete($heroImage->value);
-                }
-
-                // Simpan gambar baru
-                $path = $file->store('settings', 'public');
-
-                // Cek apakah benar-benar tersimpan
-                if (!Storage::disk('public')->exists($path)) {
-                    return redirect()
-                        ->back()
-                        ->with('error', 'Gagal menyimpan hero image.');
-                }
-
-                Setting::updateOrCreate(
-                    ['key' => 'hero_image'],
-                    [
-                        'value' => $path,
-                        'type' => 'image',
-                    ]
-                );
+        foreach (self::IMAGE_KEYS as $key => $maxWidth) {
+            if (! $request->hasFile($key) || ! $request->file($key)->isValid()) {
+                continue;
             }
+
+            $old = Setting::where('key', $key)->value('value');
+            if ($old) {
+                Storage::disk('public')->delete($old);
+            }
+
+            Setting::updateOrCreate(
+                ['key' => $key],
+                ['value' => ImageUploader::store($request->file($key), 'settings', $maxWidth), 'type' => 'image']
+            );
         }
 
-        // About Image
-        if ($request->hasFile('about_image')) {
-            $file = $request->file('about_image');
-
-            if ($file->isValid()) {
-                $aboutImage = Setting::where('key', 'about_image')->first();
-
-                // Hapus gambar lama
-                if ($aboutImage && $aboutImage->value) {
-                    Storage::disk('public')->delete($aboutImage->value);
-                }
-
-                // Simpan gambar baru
-                $path = $file->store('settings', 'public');
-
-                // Cek apakah benar-benar tersimpan
-                if (!Storage::disk('public')->exists($path)) {
-                    return redirect()
-                        ->back()
-                        ->with('error', 'Gagal menyimpan about image.');
-                }
-
-                Setting::updateOrCreate(
-                    ['key' => 'about_image'],
-                    [
-                        'value' => $path,
-                        'type' => 'image',
-                    ]
-                );
-            }
-        }
-
-        return redirect()
-            ->back()
-            ->with('success', 'Pengaturan berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui.');
     }
 }

@@ -98,7 +98,7 @@ class UserController extends Controller
         ];
 
         if ($request->hasFile('avatar')) {
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = \App\Support\ImageUploader::store($request->file('avatar'), 'avatars', 400);
         }
 
         $user = User::create($data);
@@ -147,7 +147,7 @@ class UserController extends Controller
             if ($user->avatar) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
             }
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = \App\Support\ImageUploader::store($request->file('avatar'), 'avatars', 400);
         }
 
         $user->update($data);

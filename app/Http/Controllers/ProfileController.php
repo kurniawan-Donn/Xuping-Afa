@@ -53,7 +53,7 @@ class ProfileController extends Controller
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
-            $user->avatar = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = \App\Support\ImageUploader::store($request->file('avatar'), 'avatars', 400);
         }
 
         $user->save();
