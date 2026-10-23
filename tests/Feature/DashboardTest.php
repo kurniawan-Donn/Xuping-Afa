@@ -199,6 +199,27 @@ class DashboardTest extends TestCase
         $this->assertNull($empty->fresh());
     }
 
+    public function test_maps_share_link_is_rejected_and_iframe_code_is_accepted(): void
+    {
+        $this->actingAs($this->owner);
+
+        $this->post('/dashboard/settings', ['maps_embed_url' => 'https://maps.app.goo.gl/Zcd21FojsxzCWaqF7'])
+            ->assertSessionHasErrors('maps_embed_url');
+
+        $iframe = '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12&amp;x=1" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>';
+        $this->post('/dashboard/settings', ['maps_embed_url' => $iframe])->assertSessionHasNoErrors();
+
+        $this->assertSame('https://www.google.com/maps/embed?pb=!1m18!1m12&x=1', Setting::getValue('maps_embed_url'));
+        $this->get('/about')->assertSee('google.com/maps/embed', false);
+    }
+
+    public function test_about_page_hides_map_for_old_share_link(): void
+    {
+        Setting::create(['key' => 'maps_embed_url', 'value' => 'https://maps.app.goo.gl/Zcd21FojsxzCWaqF7']);
+
+        $this->get('/about')->assertOk()->assertDontSee('<iframe', false);
+    }
+
     public function test_inactive_user_cannot_log_in(): void
     {
         $user = User::factory()->create(['email' => 'off@example.test', 'is_active' => false]);

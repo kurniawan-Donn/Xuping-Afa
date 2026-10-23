@@ -46,10 +46,16 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
+        // Kode <iframe> lengkap dari Google Maps boleh ditempel; ambil isi src-nya saja
+        if (preg_match('/src=["\']([^"\']+)["\']/i', (string) $request->input('maps_embed_url'), $m)) {
+            $request->merge(['maps_embed_url' => html_entity_decode($m[1])]);
+        }
+
         $request->validate([
             'whatsapp_number' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s]+$/'],
             'contact_email' => 'nullable|email|max:255',
-            'maps_embed_url' => 'nullable|url|max:1000',
+            // Link berbagi (maps.app.goo.gl) ditolak Google bila ditampilkan di dalam iframe
+            'maps_embed_url' => ['nullable', 'url', 'max:2000', 'regex:#^https://(www\.)?google\.[a-z.]+/maps/embed#i'],
             'instagram_url' => 'nullable|url|max:255',
             'tiktok_url' => 'nullable|url|max:255',
             'facebook_url' => 'nullable|url|max:255',
@@ -57,6 +63,7 @@ class SettingController extends Controller
             'meta_description' => 'nullable|string|max:300',
         ] + array_map(fn () => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', self::IMAGE_KEYS), [
             'whatsapp_number.regex' => 'Nomor WhatsApp hanya boleh berisi angka.',
+            'maps_embed_url.regex' => 'Gunakan link embed Google Maps (diawali https://www.google.com/maps/embed). Link berbagi seperti maps.app.goo.gl tidak bisa ditampilkan di website. Di Google Maps: Bagikan → Sematkan peta → Salin HTML, lalu tempel di sini.',
         ]);
 
         foreach (self::TEXT_KEYS as $key) {
