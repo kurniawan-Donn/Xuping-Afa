@@ -197,7 +197,7 @@ document.addEventListener('alpine:init', () => {
 
         fetchData(url = null) {
             this.loading = true;
-            let targetUrl = url || '{{ route('categories.index') }}';
+            let targetUrl = url || window.location.pathname;
             let params = new URLSearchParams({
                 search: this.search,
                 per_page: this.per_page,
@@ -207,7 +207,12 @@ document.addEventListener('alpine:init', () => {
                 targetUrl += '?' + params.toString();
             }
 
-            window.history.pushState({}, '', targetUrl);
+            try {
+    			const urlObj = new URL(targetUrl, window.location.origin);
+    			window.history.pushState({}, '', urlObj.pathname + urlObj.search);
+			} catch (e) {
+    			console.warn('pushState failed:', e);
+			}
 
             fetch(targetUrl, {
                 headers: {

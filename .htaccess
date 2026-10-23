@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Izinkan akses langsung ke file statis yang ada (favicon, gambar, dll)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Redirect semua request lain ke folder public
+RewriteRule (.*) /public/$1 [L]
+
+php_value display_errors On
