@@ -169,6 +169,12 @@ class UserController extends Controller
             return redirect()->route('users.index')->with('error', 'Tidak memiliki izin.');
         }
 
+        // Produk terhubung ke pembuatnya dengan ON DELETE CASCADE: menghapus akun akan ikut menghapus produknya.
+        $productCount = \App\Models\Product::where('user_id', $user->id)->orWhere('created_by', $user->id)->count();
+        if ($productCount > 0) {
+            return redirect()->route('users.index')->with('error', "Akun ini masih memiliki {$productCount} produk, jadi tidak dihapus agar produknya tidak ikut hilang. Nonaktifkan saja akunnya.");
+        }
+
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil dihapus.');
