@@ -199,6 +199,54 @@ class DashboardTest extends TestCase
         $this->assertNull($empty->fresh());
     }
 
+    public function test_maps_share_link_is_rejected_and_iframe_code_is_accepted(): void
+    {
+        $this->actingAs($this->owner);
+
+        $this->post('/dashboard/settings', ['maps_embed_url' => 'https://maps.app.goo.gl/Zcd21FojsxzCWaqF7'])
+            ->assertSessionHasErrors('maps_embed_url');
+
+        $iframe = '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12&amp;x=1" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>';
+        $this->post('/dashboard/settings', ['maps_embed_url' => $iframe])->assertSessionHasNoErrors();
+
+        $this->assertSame('https://www.google.com/maps/embed?pb=!1m18!1m12&x=1', Setting::getValue('maps_embed_url'));
+        $this->get('/about')->assertSee('google.com/maps/embed', false);
+    }
+
+    public function test_maps_iframe_survives_html_encoding_and_surrounding_text(): void
+    {
+        $this->actingAs($this->owner);
+        $url = 'https://www.google.com/maps/embed?pb=!1m18!1s0x2e79bc2b1265a39f%3A0x79591deb455c7ec0!2sXUPING%20madiun!5e1';
+
+        // Tanda kutip & kurung sudut di-encode (mis. oleh firewall hosting)
+        $this->post('/dashboard/settings', ['maps_embed_url' => '&lt;iframe src=&quot;' . $url . '&quot; width=&quot;600&quot;&gt;&lt;/iframe&gt;'])
+            ->assertSessionHasNoErrors();
+        $this->assertSame($url, Setting::getValue('maps_embed_url'));
+
+        $this->post('/dashboard/settings', ['maps_embed_url' => "  \n" . $url . "\n"])->assertSessionHasNoErrors();
+        $this->assertSame($url, Setting::getValue('maps_embed_url'));
+    }
+
+    public function test_old_invalid_maps_link_does_not_block_saving_other_settings(): void
+    {
+        Setting::create(['key' => 'maps_embed_url', 'value' => 'https://maps.app.goo.gl/Zcd21FojsxzCWaqF7']);
+
+        $this->actingAs($this->owner)->post('/dashboard/settings', [
+            'maps_embed_url' => 'https://maps.app.goo.gl/Zcd21FojsxzCWaqF7',
+            'site_name' => 'Afa Xuping Madiun',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame('Afa Xuping Madiun', Setting::getValue('site_name'));
+        $this->assertNull(Setting::getValue('maps_embed_url'));
+    }
+
+    public function test_about_page_hides_map_for_old_share_link(): void
+    {
+        Setting::create(['key' => 'maps_embed_url', 'value' => 'https://maps.app.goo.gl/Zcd21FojsxzCWaqF7']);
+
+        $this->get('/about')->assertOk()->assertDontSee('<iframe', false);
+    }
+
     public function test_inactive_user_cannot_log_in(): void
     {
         $user = User::factory()->create(['email' => 'off@example.test', 'is_active' => false]);
