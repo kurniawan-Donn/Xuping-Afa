@@ -3,6 +3,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ChatLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -18,6 +20,7 @@ Route::get('/products', [WebsiteController::class, 'productIndex'])->name('websi
 Route::get('/products/{product:slug}', [WebsiteController::class, 'productShow'])->name('website.products.show');
 Route::post('/wa-click', [WebsiteController::class, 'waClick'])->middleware('throttle:30,1')->name('website.wa-click');
 Route::get('/sitemap.xml', [WebsiteController::class, 'sitemap'])->name('website.sitemap');
+Route::post('/chat', [ChatController::class, 'send'])->middleware('throttle:8,1')->name('website.chat');
 
 Route::middleware('guest')->prefix('login')->group(function () {
     Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -40,6 +43,8 @@ Route::middleware(['auth', 'prevent-back-history'])->prefix('dashboard')->group(
     Route::middleware(['role:owner|superadmin'])->group(function () {
         Route::post('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle-active');
         Route::resource('users', UserController::class)->except(['show']);
+
+        Route::get('/chatbot', [ChatLogController::class, 'index'])->name('chatbot.index');
 
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');

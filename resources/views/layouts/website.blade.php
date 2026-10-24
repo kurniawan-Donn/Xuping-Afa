@@ -12,6 +12,7 @@
         'wa' => \App\Models\Setting::whatsappNumber(),
         'greeting' => $settings['whatsapp_greeting'] ?? "Halo {$siteName}, saya ingin memesan:",
         'clickUrl' => route('website.wa-click'),
+        'chatUrl' => route('website.chat'),
         'csrf' => csrf_token(),
     ];
 @endphp
@@ -46,5 +47,8 @@
     @include('components.website.footer')
     @include('components.website.cart-drawer')
     @include('components.website.bottom-nav')
+    @if (\App\Support\Chatbot::enabled())
+        @include('components.website.chatbot')
+    @endif
     @include('components.website.toast')
 @endsection

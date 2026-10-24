@@ -5,7 +5,8 @@
 @php
     $s = fn ($key, $default = '') => old($key, $settings[$key] ?? $default);
     $img = fn ($key) => ! empty($settings[$key]) ? asset('storage/' . $settings[$key]) : null;
-    $tabs = ['umum' => 'Umum', 'whatsapp' => 'WhatsApp & Kontak', 'beranda' => 'Beranda & Tentang', 'seo' => 'Sosial & SEO'];
+    $tabs = ['umum' => 'Umum', 'whatsapp' => 'WhatsApp & Kontak', 'beranda' => 'Beranda & Tentang', 'seo' => 'Sosial & SEO', 'chatbot' => 'Chatbot AI'];
+    $hasGeminiKey = filled(config('services.gemini.key'));
 @endphp
 
 @section('content')
@@ -192,6 +193,53 @@
             </label>
             <p class="hint mt-2">Muncul saat link beranda dibagikan ke WhatsApp/Facebook. Halaman produk otomatis memakai foto produk.</p>
         </section>
+    </div>
+
+    {{-- ============ CHATBOT ============ --}}
+    <div x-show="tab === 'chatbot'" x-cloak class="grid gap-6 lg:grid-cols-3">
+        <section class="card space-y-5 p-5 lg:col-span-2 lg:p-6">
+            <div class="flex items-center gap-3">
+                <span class="grid h-10 w-10 place-items-center rounded-xl bg-gold-50 text-gold-600"><x-icon name="sparkles" /></span>
+                <div>
+                    <h2 class="font-semibold">Asisten "Tanya Afa"</h2>
+                    <p class="text-xs text-stone-500">Menjawab pertanyaan pengunjung & merekomendasikan produk dari katalog.</p>
+                </div>
+            </div>
+
+            @unless ($hasGeminiKey)
+                <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    <b>API key belum terpasang.</b> Tambahkan baris <code>GEMINI_API_KEY=...</code> di file <code>.env</code> server. Chatbot tidak akan tampil di website sebelum key diisi.
+                </div>
+            @endunless
+
+            <label class="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-stone-200 p-4">
+                <span><span class="block text-sm font-medium">Tampilkan chatbot di website</span><span class="block text-xs text-stone-500">Matikan kapan saja bila biaya ingin dihentikan.</span></span>
+                <input type="hidden" name="chatbot_enabled" value="0">
+                <input type="checkbox" name="chatbot_enabled" value="1" @checked($s('chatbot_enabled')) class="peer sr-only">
+                <span class="relative h-6 w-11 shrink-0 rounded-full bg-stone-200 transition after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow after:transition peer-checked:bg-ink peer-checked:after:translate-x-5"></span>
+            </label>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="chatbot_daily_limit" class="label">Batas pesan per hari (semua pengunjung)</label>
+                    <input id="chatbot_daily_limit" name="chatbot_daily_limit" type="number" min="0" max="5000" value="{{ $s('chatbot_daily_limit', \App\Support\Chatbot::DEFAULT_DAILY_LIMIT) }}" class="input">
+                    <p class="hint">100 pesan/hari ≈ maks. Rp 50.000/bulan.</p>
+                </div>
+                <div>
+                    <label for="chatbot_visitor_limit" class="label">Batas pesan per pengunjung per hari</label>
+                    <input id="chatbot_visitor_limit" name="chatbot_visitor_limit" type="number" min="0" max="200" value="{{ $s('chatbot_visitor_limit', \App\Support\Chatbot::DEFAULT_VISITOR_LIMIT) }}" class="input">
+                    <p class="hint">Mencegah satu orang menghabiskan kuota.</p>
+                </div>
+            </div>
+            <p class="text-xs text-stone-500">Bila batas tercapai, pengunjung diarahkan ke WhatsApp admin. Model: <code>{{ config('services.gemini.model') }}</code>.</p>
+        </section>
+
+        <aside class="card space-y-3 p-5 text-sm lg:p-6">
+            <p class="font-semibold">Pemakaian & riwayat</p>
+            <p class="text-stone-500">Lihat jumlah pesan, perkiraan biaya bulan ini, dan pertanyaan yang paling sering ditanyakan pengunjung.</p>
+            <a href="{{ route('chatbot.index') }}" class="btn btn-outline w-full">Buka riwayat chatbot</a>
+            <p class="hint">Pasang juga <b>budget alert</b> di Google Cloud Billing sebagai pengaman kedua.</p>
+        </aside>
     </div>
 
     <div class="sticky bottom-4 z-10 mt-6 flex justify-end">
