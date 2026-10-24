@@ -34,6 +34,13 @@ class Product extends Model
         'colors' => 'array',
     ];
 
+    protected static function booted(): void
+    {
+        // Chatbot memakai katalog ringkas yang di-cache; perbarui saat produk berubah
+        static::saved(fn () => \Illuminate\Support\Facades\Cache::forget(\App\Support\Chatbot::CATALOG_CACHE_KEY));
+        static::deleted(fn () => \Illuminate\Support\Facades\Cache::forget(\App\Support\Chatbot::CATALOG_CACHE_KEY));
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

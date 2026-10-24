@@ -16,6 +16,7 @@
     if (auth()->user()->hasAnyRole(['owner', 'superadmin'])) {
         $groups['Pengaturan'] = [
             ['Pengguna', 'users', 'users.index', 'users.*'],
+            ['Chatbot AI', 'sparkles', 'chatbot.index', 'chatbot.*'],
             ['Website & WhatsApp', 'settings', 'settings.index', 'settings.*'],
         ];
     }

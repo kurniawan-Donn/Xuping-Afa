@@ -6,6 +6,8 @@
     $aboutContent = $settings['about_content'] ?? '';
     $aboutImage = ! empty($settings['about_image']) ? asset('storage/' . $settings['about_image']) : null;
     $wa = \App\Models\Setting::whatsappNumber();
+    // Hanya link embed yang boleh ditampilkan di iframe; link berbagi akan ditolak Google
+    $mapsEmbed = preg_match('#^https://(www\.)?google\.[a-z.]+/maps/embed#i', $settings['maps_embed_url'] ?? '') ? $settings['maps_embed_url'] : null;
 @endphp
 
 @section('title', 'Tentang Kami — ' . $siteName)
@@ -104,8 +106,8 @@
             </ul>
         </div>
         <div class="min-h-72 bg-cream">
-            @if (! empty($settings['maps_embed_url']))
-                <iframe src="{{ $settings['maps_embed_url'] }}" class="h-full min-h-72 w-full border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Lokasi {{ $siteName }}"></iframe>
+            @if ($mapsEmbed)
+                <iframe src="{{ $mapsEmbed }}" class="h-full min-h-72 w-full border-0" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Lokasi {{ $siteName }}"></iframe>
             @elseif ($aboutImage)
                 <img src="{{ $aboutImage }}" alt="" class="h-full w-full object-cover" loading="lazy">
             @endif

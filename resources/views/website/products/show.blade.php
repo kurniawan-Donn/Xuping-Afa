@@ -13,6 +13,8 @@
 @section('meta_description', $product->short_description ?: "{$product->name} — {$price}. Pesan mudah via WhatsApp di {$siteName}.")
 @section('meta_image', $imageUrls->first())
 @section('og_type', 'product')
+{{-- Tombol pesan menempel di bawah layar HP; tombol chatbot dinaikkan agar tidak bertumpuk --}}
+@section('body_class', 'has-sticky-actions')
 
 @push('meta')
 <meta property="product:price:amount" content="{{ (int) $product->price }}">
