@@ -20,7 +20,8 @@ Route::get('/products', [WebsiteController::class, 'productIndex'])->name('websi
 Route::get('/products/{product:slug}', [WebsiteController::class, 'productShow'])->name('website.products.show');
 Route::post('/wa-click', [WebsiteController::class, 'waClick'])->middleware('throttle:30,1')->name('website.wa-click');
 Route::get('/sitemap.xml', [WebsiteController::class, 'sitemap'])->name('website.sitemap');
-Route::post('/chat', [ChatController::class, 'send'])->middleware('throttle:8,1')->name('website.chat');
+// Bukan "/chat": di hosting InfinityFree alamat itu diblokir server (403) sebelum sampai ke Laravel
+Route::post('/tanya-afa', [ChatController::class, 'send'])->middleware('throttle:8,1')->name('website.chat');
 
 Route::middleware('guest')->prefix('login')->group(function () {
     Route::get('/', [AuthController::class, 'showLogin'])->name('login');
