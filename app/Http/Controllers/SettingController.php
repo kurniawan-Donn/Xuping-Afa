@@ -28,6 +28,9 @@ class SettingController extends Controller
         'shopee_url',
         'meta_description',
         'footer_text',
+        'chatbot_enabled',
+        'chatbot_daily_limit',
+        'chatbot_visitor_limit',
     ];
 
     private const MAPS_EMBED_PATTERN = '#https://(www\.)?google\.[a-z.]+/maps/embed\?[^"\'\s<>]+#i';
@@ -68,6 +71,9 @@ class SettingController extends Controller
             'facebook_url' => 'nullable|url|max:255',
             'shopee_url' => 'nullable|url|max:255',
             'meta_description' => 'nullable|string|max:300',
+            'chatbot_enabled' => 'nullable|boolean',
+            'chatbot_daily_limit' => 'nullable|integer|min:0|max:5000',
+            'chatbot_visitor_limit' => 'nullable|integer|min:0|max:200',
         ] + array_map(fn () => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', self::IMAGE_KEYS), [
             'whatsapp_number.regex' => 'Nomor WhatsApp hanya boleh berisi angka.',
             'maps_embed_url.regex' => 'Link Google Maps belum benar. Yang diterima: "' . \Illuminate\Support\Str::limit($mapsInput, 60) . '". Di Google Maps: Bagikan → Sematkan peta → Salin HTML, lalu tempel di sini (link berbagi maps.app.goo.gl tidak bisa dipakai).',

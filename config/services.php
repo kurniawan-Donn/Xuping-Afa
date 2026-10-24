@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    // Chatbot "Tanya Afa" di website
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-3.5-flash-lite'),
+        'timeout' => (int) env('GEMINI_TIMEOUT', 20),
+        // Harga USD per 1 juta token, hanya untuk perkiraan biaya di dashboard
+        'price_input' => (float) env('GEMINI_PRICE_INPUT', 0.30),
+        'price_output' => (float) env('GEMINI_PRICE_OUTPUT', 2.50),
+    ],
+
 ];
