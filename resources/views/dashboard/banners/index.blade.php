@@ -26,6 +26,11 @@
                         @if ($banner->subtitle)<p class="mt-1 line-clamp-2 text-xs text-stone-200">{{ $banner->subtitle }}</p>@endif
                     </div>
                     <span class="badge absolute right-3 top-3 {{ $banner->is_active ? 'badge-green' : 'badge-gray' }}">{{ $banner->is_active ? 'Aktif' : 'Nonaktif' }}</span>
+                    @if ($banner->mobile_image_url)
+                        <img src="{{ $banner->mobile_image_url }}" alt="Gambar HP" title="Punya gambar khusus HP" class="absolute bottom-3 right-3 aspect-[4/5] w-12 rounded-lg border-2 border-white object-cover shadow">
+                    @else
+                        <span class="badge absolute bottom-3 right-3 bg-white/90 text-stone-600">Tanpa gambar HP</span>
+                    @endif
                 </div>
                 <div class="flex items-center justify-between gap-3 px-4 py-3">
                     <p class="min-w-0 truncate text-xs text-stone-500">Urutan {{ $banner->sort_order }} &middot; {{ $banner->link_url ?: 'Ke katalog' }}</p>

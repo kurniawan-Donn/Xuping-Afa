@@ -21,14 +21,25 @@
                 <div x-show="i === {{ $idx }}" @if ($idx) x-cloak @endif
                     x-transition:enter="transition duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                     class="absolute inset-0">
-                    <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 h-full w-full object-cover" @if ($idx) loading="lazy" @else fetchpriority="high" @endif>
-                    <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent sm:bg-gradient-to-r sm:from-ink/75 sm:via-ink/30"></div>
-                    <div class="absolute inset-x-0 bottom-0 p-6 sm:inset-y-0 sm:flex sm:max-w-xl sm:flex-col sm:justify-center sm:p-12 lg:p-16">
+                    @php $bannerLink = $banner->link_url ?: route('website.products.index'); @endphp
+                    {{-- Layar HP (< 640px) memakai gambar potret bila ada; browser hanya mengunduh salah satunya --}}
+                    <picture>
+                        @if ($banner->mobile_image_url)
+                            <source media="(max-width: 639px)" srcset="{{ $banner->mobile_image_url }}">
+                        @endif
+                        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="absolute inset-0 h-full w-full object-cover" @if ($idx) loading="lazy" @else fetchpriority="high" @endif>
+                    </picture>
+                    @if ($banner->hide_text_mobile)
+                        {{-- Teks disembunyikan di HP: seluruh banner menjadi tautan --}}
+                        <a href="{{ $bannerLink }}" class="absolute inset-0 sm:hidden" aria-label="{{ $banner->title }}"></a>
+                    @endif
+                    <div class="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent sm:bg-gradient-to-r sm:from-ink/75 sm:via-ink/30 {{ $banner->hide_text_mobile ? 'max-sm:hidden' : '' }}"></div>
+                    <div class="absolute inset-x-0 bottom-0 p-6 sm:inset-y-0 sm:flex sm:max-w-xl sm:flex-col sm:justify-center sm:p-12 lg:p-16 {{ $banner->hide_text_mobile ? 'max-sm:hidden' : '' }}">
                         <h2 class="font-display text-4xl font-semibold leading-[1.05] text-white sm:text-5xl lg:text-6xl">{{ $banner->title }}</h2>
                         @if ($banner->subtitle)
                             <p class="mt-3 max-w-md text-sm text-stone-200 sm:text-base">{{ $banner->subtitle }}</p>
                         @endif
-                        <a href="{{ $banner->link_url ?: route('website.products.index') }}" class="btn btn-gold mt-6 w-fit">
+                        <a href="{{ $bannerLink }}" class="btn btn-gold mt-6 w-fit">
                             Lihat Koleksi <x-icon name="arrow-right" class="h-4 w-4" />
                         </a>
                     </div>

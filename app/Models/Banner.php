@@ -13,6 +13,7 @@ class Banner extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'hide_text_mobile' => 'boolean',
     ];
 
     public function scopeActive(Builder $query): Builder
@@ -23,5 +24,10 @@ class Banner extends Model
     public function getImageUrlAttribute(): string
     {
         return asset('storage/' . $this->image_path);
+    }
+
+    public function getMobileImageUrlAttribute(): ?string
+    {
+        return $this->image_mobile_path ? asset('storage/' . $this->image_mobile_path) : null;
     }
 }
