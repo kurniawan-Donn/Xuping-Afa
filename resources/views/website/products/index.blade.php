@@ -70,7 +70,8 @@
     <div class="mt-8 grid gap-10 lg:grid-cols-[240px_1fr]">
         {{-- Panel filter: sidebar di desktop, bottom sheet di HP --}}
         <div x-cloak x-show="filtersOpen" x-transition.opacity class="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm lg:hidden" @click="filtersOpen = false"></div>
-        <aside :class="filtersOpen ? 'translate-y-0' : 'translate-y-full'"
+        {{-- Pakai :style, bukan class translate-y-0: class itu kalah dari translate-y-full sehingga panel tidak pernah naik --}}
+        <aside :style="filtersOpen && 'translate: none'"
             class="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] translate-y-full overflow-y-auto rounded-t-3xl bg-ivory p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-lift transition duration-300 lg:static lg:z-auto lg:max-h-none lg:translate-y-0 lg:overflow-visible lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
             <div class="mb-6 flex items-center justify-between lg:hidden">
                 <p class="font-display text-2xl font-bold">Filter</p>

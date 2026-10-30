@@ -189,6 +189,102 @@ Alpine.data('productOrder', (product, sizes = [], colors = []) => ({
 }));
 
 /* ---------------------------------------------------------------
+ * Chatbot "Tanya Afa": percakapan disimpan per tab (sessionStorage),
+ * hanya beberapa pesan terakhir yang dikirim ke server agar hemat token.
+ * ------------------------------------------------------------- */
+const CHAT_GREETING = {
+    role: 'model',
+    local: true,
+    text: 'Halo Kak! 👋 Aku Afa, asisten Afa Xuping. Mau cari perhiasan untuk diri sendiri atau kado? Tanya apa saja soal produk, ukuran, atau cara pesan ya.',
+};
+
+const chatSession = {
+    get() {
+        try {
+            return JSON.parse(sessionStorage.getItem('afa_chat')) ?? null;
+        } catch {
+            return null;
+        }
+    },
+    set(value) {
+        try {
+            sessionStorage.setItem('afa_chat', JSON.stringify(value));
+        } catch {
+            // abaikan: percakapan tetap jalan selama halaman terbuka
+        }
+    },
+};
+
+Alpine.data('chatbot', () => ({
+    open: false,
+    loading: false,
+    draft: '',
+    messages: chatSession.get() || [CHAT_GREETING],
+    suggestions: ['Rekomendasi kado di bawah 200 ribu', 'Cara pesannya gimana?', 'Ada yang warna rose gold?', 'Jam buka & lokasi toko'],
+
+    toggle() {
+        this.open = !this.open;
+        if (this.open) this.$nextTick(() => (this.scrollDown(), this.$refs.input?.focus()));
+    },
+    scrollDown() {
+        this.$nextTick(() => this.$refs.scroll?.scrollTo({ top: this.$refs.scroll.scrollHeight, behavior: 'smooth' }));
+    },
+    save() {
+        chatSession.set(this.messages.slice(-30));
+    },
+    reset() {
+        this.messages = [CHAT_GREETING];
+        this.save();
+    },
+
+    async send(text = null) {
+        const question = (text ?? this.draft).trim().slice(0, 500);
+        if (!question || this.loading) return;
+
+        this.draft = '';
+        this.messages.push({ role: 'user', text: question });
+        this.loading = true;
+        this.save();
+        this.scrollDown();
+
+        const history = this.messages.filter((m) => !m.local).slice(-6).map(({ role, text }) => ({ role, text }));
+
+        try {
+            const res = await fetch(AFA.chatUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': AFA.csrf },
+                body: JSON.stringify({ messages: history }),
+            });
+
+            if (res.status === 429) throw new Error('throttle');
+            if (!res.ok) throw new Error(res.status);
+
+            const data = await res.json();
+            this.messages.push({ role: 'model', text: data.reply, products: data.products || [], handoff: !!data.handoff });
+        } catch (e) {
+            this.messages.push({
+                role: 'model',
+                local: true,
+                handoff: true,
+                text: e.message === 'throttle'
+                    ? 'Pelan-pelan ya Kak 😊 Tunggu sebentar sebelum bertanya lagi.'
+                    : 'Maaf Kak, koneksi sedang bermasalah. Coba lagi sebentar atau chat admin di WhatsApp ya.',
+            });
+        } finally {
+            this.loading = false;
+            this.save();
+            this.scrollDown();
+        }
+    },
+
+    handoff() {
+        const lastQuestion = [...this.messages].reverse().find((m) => m.role === 'user')?.text;
+        const text = lastQuestion ? `Halo, saya tadi bertanya ke Afa: "${lastQuestion}"` : 'Halo, saya ingin bertanya.';
+        openWhatsApp(text);
+    },
+}));
+
+/* ---------------------------------------------------------------
  * Galeri foto: geser (scroll-snap), thumbnail, dan lightbox
  * ------------------------------------------------------------- */
 Alpine.data('gallery', (count) => ({
