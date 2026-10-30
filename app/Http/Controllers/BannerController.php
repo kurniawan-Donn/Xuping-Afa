@@ -27,6 +27,9 @@ class BannerController extends Controller
     {
         $data = $this->validated($request, true);
         $data['image_path'] = ImageUploader::store($request->file('image'), 'banners', 1920);
+        if ($request->hasFile('image_mobile')) {
+            $data['image_mobile_path'] = ImageUploader::store($request->file('image_mobile'), 'banners', 1080);
+        }
         $data['user_id'] = auth()->id();
         $data['created_by'] = auth()->id();
 
@@ -49,6 +52,15 @@ class BannerController extends Controller
             $data['image_path'] = ImageUploader::store($request->file('image'), 'banners', 1920);
         }
 
+        if ($request->hasFile('image_mobile') || $request->boolean('remove_image_mobile')) {
+            if ($banner->image_mobile_path) {
+                Storage::disk('public')->delete($banner->image_mobile_path);
+            }
+            $data['image_mobile_path'] = $request->hasFile('image_mobile')
+                ? ImageUploader::store($request->file('image_mobile'), 'banners', 1080)
+                : null;
+        }
+
         $banner->update($data);
 
         return redirect()->route('banners.index')->with('success', 'Banner berhasil diperbarui.');
@@ -56,7 +68,7 @@ class BannerController extends Controller
 
     public function destroy(Banner $banner)
     {
-        Storage::disk('public')->delete($banner->image_path);
+        Storage::disk('public')->delete(array_filter([$banner->image_path, $banner->image_mobile_path]));
         $banner->delete();
 
         return redirect()->route('banners.index')->with('success', 'Banner berhasil dihapus.');
@@ -70,6 +82,7 @@ class BannerController extends Controller
             'link_url' => ['nullable', 'string', 'max:255', 'regex:/^(\/|https?:\/\/)/i'],
             'sort_order' => 'nullable|integer',
             'image' => [$imageRequired ? 'required' : 'nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'image_mobile' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ], [
             'link_url.regex' => 'Link harus diawali "/" (halaman di website ini) atau "https://".',
         ]);
@@ -80,6 +93,7 @@ class BannerController extends Controller
             'link_url' => $request->link_url,
             'sort_order' => $request->integer('sort_order'),
             'is_active' => $request->boolean('is_active'),
+            'hide_text_mobile' => $request->boolean('hide_text_mobile'),
         ];
     }
 }
